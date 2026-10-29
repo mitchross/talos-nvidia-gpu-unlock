@@ -1,8 +1,16 @@
 # 05 — The early initramfs loader
 
+**Start — 2 minutes:** Trace the boot diagram from early mounts to NVIDIA.
+
+**You are here:** Boot order · required.
+
+**Done when:** The exact normal UKI has the loader, early firmware, signature setting, and explicit PCI target.
+
+![Early boot checks every selected GPU before permitting machined and NVIDIA.](../diagrams/boot.svg)
+
 This is the essential integration. A normal system extension alone is insufficient.
 
-## Exact insertion point
+## 1. Locate the execution point
 
 The patch changes Talos `internal/app/init/main.go`.
 It calls `gpuunlock.Boot(constants.NewRoot)` after the root filesystem and firmware mounts exist.
@@ -18,19 +26,47 @@ The firmware bind runs from the early directory into the new root, not from a la
 
 Read the actual [loader patch](../patches/talos-early-loader.patch), including its tests.
 
-## Barrier contract
+<details>
+<summary>Why a late module list cannot establish this ordering</summary>
+
+`machine.kernel.modules` is handled after early init and cannot implement this barrier.
+Putting GPU Unlock first in a YAML list does not prove it finishes before NVIDIA binds.
+An initramfs extension and correct firmware paths are necessary, but the early execution point and fresh-success barrier provide ordering.
+
+</details>
+
+## 2. Check the barrier contract
+
+1. Select explicit guest PCI targets.
+2. Check signature policy, device eligibility, and driver absence.
+3. Insert GPU Unlock synchronously.
+4. Require fresh success for every selected GPU.
+5. Permit `machined`; NVIDIA initializes afterward.
+
+<details>
+<summary>Open all barrier checks, in execution order</summary>
+
+### Select the transaction
 
 1. Parse exactly one `gpu_unlock.targets=` command-line argument.
 2. If absent, preserve the normal boot path without inserting GPU Unlock.
 3. Discover supported NVIDIA PCI devices from sysfs.
 4. Reject empty, absent, malformed, unsupported, or duplicate selected addresses.
-5. Require `/sys/module/module/parameters/sig_enforce` to report `N`.
-6. Require NVIDIA, nouveau, and GPU Unlock to be absent.
-7. Require each selected device to have no bound driver.
-8. Drain existing kernel messages, then call `finit_module` synchronously.
-9. Pass `targets=...` explicitly to the module.
-10. Require a fresh exact `pci <BDF>: gpu_unlock: unlocked` record for every selected device.
-11. Permit `machined` only after every check succeeds.
+
+### Check the preconditions
+
+1. Require `/sys/module/module/parameters/sig_enforce` to report `N`.
+2. Require NVIDIA, nouveau, and GPU Unlock to be absent.
+3. Require each selected device to have no bound driver.
+
+### Insert and verify
+
+1. Drain existing kernel messages, then call `finit_module` synchronously.
+2. Pass `targets=...` explicitly to the module.
+3. Require a fresh exact `pci <BDF>: gpu_unlock: unlocked` record for every selected device.
+4. Permit `machined` only after every check succeeds.
+
+</details>
 
 A zero module insertion return is insufficient because per-card failures can still occur.
 Old log records cannot satisfy the fresh-message barrier.
@@ -43,7 +79,7 @@ The second card retains its separate successful initialization.
 The parser supports an explicit list or `all`; that does not prove a repeatable two-card restart.
 Do not change targets blindly on retained hardware.
 
-## Build the early imager
+## 3. Build the early imager
 
 ```bash
 bash scripts/build-early-imager.sh "$PWD/work" "$PWD/work/early"
@@ -60,7 +96,7 @@ The Go build disables VCS embedding because an archive has no Git metadata.
 This prevents the surrounding guide repository from contaminating the init binary's build identity.
 The reference early-init hash is in `sources.lock.json`.
 
-## Signature enforcement
+## 4. Remove effective signature enforcement
 
 The stock configuration has `CONFIG_MODULE_SIG_FORCE=n`, but the normal boot command line enforces signatures.
 The diagnostic construction removes the original enforcement argument and supplies exactly:
@@ -74,16 +110,16 @@ Appending `=0` after an existing `=1` cannot clear this kernel's enable-only enf
 Verify the final UKI command line and the live sysfs value.
 This exception weakens module trust and does not constitute a Secure Boot solution.
 
-## Correct the diagnostic UKI
+## 5. Correct the diagnostic UKI
 
 The tested diagnostic fixed firmware lookup and added serial diagnostics after base image assembly.
 [assemble-local.py](../scripts/assemble-local.py) preserves that workflow:
 
-- Build a base installer with the custom early imager and all extensions.
-- Extract its `usr/install/amd64/vmlinuz.efi` into a new file.
-- Apply [patch-reference-uki.py](../scripts/patch-reference-uki.py) to produce `diagnostic.efi`.
-- Preserve `.linux` and `.initrd` bytes while correcting the normal command line.
-- Refuse wipe arguments or contradictory signature settings.
+1. Build a base installer with the custom early imager and all extensions.
+2. Extract its `usr/install/amd64/vmlinuz.efi` into a new file.
+3. Apply [patch-reference-uki.py](../scripts/patch-reference-uki.py) to produce `diagnostic.efi`.
+4. Preserve `.linux` and `.initrd` bytes while correcting the normal command line.
+5. Refuse wipe arguments or contradictory signature settings.
 
 The OCI installer itself remains unchanged. `diagnostic.efi` is a sidecar.
 The original known-good UKI hash is `9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910`.
@@ -91,11 +127,9 @@ A source rebuild with different extension metadata can produce a different UKI h
 [Reference replay](../scripts/replay-reference.py) checks byte-exact reproduction only when the exact preserved base archive is supplied.
 That private base archive is not distributed here.
 
-## Why late loading fails
-
-`machine.kernel.modules` is handled after early init and cannot implement this barrier.
-Putting GPU Unlock first in a YAML list does not prove it finishes before NVIDIA binds.
-An initramfs extension and correct firmware paths are necessary, but the early execution point and fresh-success barrier provide ordering.
-
 Recovery: select the preserved stock boot entry through the out-of-band console.
 Do not select reset-to-maintenance or an entry that wipes STATE/EPHEMERAL.
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [open the installation validation boundary](09-installation.md).

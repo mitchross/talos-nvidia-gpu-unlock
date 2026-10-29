@@ -1,9 +1,20 @@
 # Architecture
 
+**Start — 2 minutes:** follow the early-boot diagram before reading the source patches.
+
+**You are here:** visual reference · five system views.
+
+**Done when:** you can locate the early barrier and the remaining managed-image gap.
+
 The diagrams describe the tested ordering and remaining management boundary.
 The currently selected loader initializes one card; the second retains its prior verified unlock.
 
-## Build pipeline
+## 1. Build pipeline
+
+![Build pipeline](../diagrams/build.svg)
+
+<details>
+<summary>Open Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -22,9 +33,14 @@ flowchart LR
   X[Stock Talos Linux binary stays unchanged] -.-> M
 ```
 
-[Rendered SVG](../diagrams/build.svg)
+</details>
 
-## Early boot sequence
+## 2. Early boot sequence
+
+![Early boot sequence](../diagrams/boot.svg)
+
+<details>
+<summary>Open Mermaid source</summary>
 
 ```mermaid
 flowchart TD
@@ -43,9 +59,14 @@ flowchart TD
   Q --> W[vLLM CUDA inference]
 ```
 
-[Rendered SVG](../diagrams/boot.svg)
+</details>
 
-## Registry, factory, and Omni
+## 3. Registry, factory, and Omni
+
+![Registry, factory, and Omni](../diagrams/factory.svg)
+
+<details>
+<summary>Open Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -57,9 +78,14 @@ flowchart LR
   F --> G[amd64 GPU schematic]
 ```
 
-[Rendered SVG](../diagrams/factory.svg)
+</details>
 
-## Passthrough to vLLM
+## 4. Passthrough to vLLM
+
+![Passthrough to vLLM](../diagrams/passthrough.svg)
+
+<details>
+<summary>Open Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -74,9 +100,14 @@ flowchart LR
   M[Omni machine lock] -. management guard .-> P
 ```
 
-[Rendered SVG](../diagrams/passthrough.svg)
+</details>
 
-## Failure and recovery
+## 5. Failure and recovery
+
+![Failure and recovery](../diagrams/recovery.svg)
+
+<details>
+<summary>Open Mermaid source</summary>
 
 ```mermaid
 flowchart TD
@@ -93,13 +124,16 @@ flowchart TD
   I --> J[No automatic retry or host power cycle]
 ```
 
-[Rendered SVG](../diagrams/recovery.svg)
+</details>
 
 GPU schematics are amd64-only. Stock arm64 uses a separate schematic.
 The management services remain independent of Kubernetes availability.
 Rendered SVGs sit beside their Mermaid sources in `diagrams/`.
 
-## Render the Mermaid sources
+<details>
+<summary>Render all five diagram sources locally</summary>
+
+### Render the Mermaid sources
 
 Use a headless Chromium configuration at `PUPPETEER_CONFIG`.
 The recorded local renderer was Mermaid CLI 11.12.0.
@@ -110,3 +144,9 @@ PUPPETEER_SKIP_DOWNLOAD=1 npm exec --yes --package=@mermaid-js/mermaid-cli@11.12
 ```
 
 Repeat for the other four source files. Rendering does not contact Talos or change a VM.
+
+</details>
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [open the early-loader insertion point](05-early-boot.md).

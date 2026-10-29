@@ -1,49 +1,99 @@
 # GPU Unlock on Talos Linux
 
-This guide reconstructs a working Zagitta GPU Unlock 2.0 integration on Talos v1.14.5.
-It keeps the **stock Linux kernel** and adds an ABI-compatible external module plus a synchronous **early initramfs loader**.
-The loader finishes before NVIDIA can bind a selected GPU.
+**Start with [prerequisites](docs/01-prerequisites.md). Allow 2 minutes to check whether this guide fits your system.**
 
-**Status:** both RTX 3090s operate unlocked and serve Qwen through vLLM.
-The current diagnostic boot initializes one card; the other retains a previous verified unlock.
-A repeatable, automatic dual-card cold/warm boot and its Omni lifecycle remain unfinished.
-Do not interpret a successful diagnostic session as a production-ready installer.
+This guide reconstructs Zagitta GPU Unlock 2.0 on Talos v1.14.5.
+Keep the stock Talos kernel. Build a matching external module.
+Run GPU Unlock in early initramfs, before NVIDIA binds the selected GPU.
 
-No firmware, kernel module, boot image, certificate, credential, or private signing key is distributed here.
-Download pinned upstream sources and extract licensed firmware locally.
+| Working now | Still unfinished |
+|---|---|
+| Two RTX 3090s serve Qwen through vLLM | Repeatable automatic dual-card cold/warm boot |
+| Early loader requires fresh per-target success | Corrected diagnostic UKI as an Omni-managed installer |
+| Module, firmware, and boot evidence preserved | Fresh-install and bare-metal validation |
 
-## Choose your path
+> **Deployment boundary:** the current diagnostic boot initializes one card.
+> The second retains a previous verified unlock.
+> Keep the Omni machine lock until the managed lifecycle receives review.
 
-| Reader | Required sections | Optional sections |
+## 1. Choose your route
+
+| Your setup | Read | Skip when unused |
 |---|---|---|
-| Any Talos operator | 01–05, 09–13 | Factory, Omni, Proxmox |
-| Bare-metal Talos | The same module, firmware, signature, and early-ordering requirements | Your platform's installer and console recovery need separate validation |
-| Omni operator | Generic sections plus 06–07 | Proxmox |
-| Proxmox operator | Generic sections plus 08 | Factory and Omni |
+| Talos without Omni | Build, early boot, installation, verification, recovery | Factory and Omni |
+| Bare-metal Talos | The same generic requirements | Proxmox; validate your own boot and console path |
+| Omni-managed Talos | Generic chapters plus Factory and Omni | Proxmox if unused |
+| Proxmox-hosted Talos | Generic chapters plus Proxmox | Factory and Omni if unused |
 
-The tested platform profile is `nocloud` on an amd64 VM.
-Bare-metal boot and a fresh Talos installation were **not** validated.
-This is an evidence-backed diagnostic integration guide, not a universal unattended installation script.
+The tested platform is an amd64 `nocloud` VM.
+This guide reconstructs a successful diagnostic integration. It does not claim a validated unattended fresh installation.
 
-## Installation guide
+## 2. Follow five stages
 
-1. [Prerequisites and validation scope](docs/01-prerequisites.md)
-2. [Build the compatible external module](docs/02-build-module.md)
-3. [Extract and verify firmware](docs/03-firmware.md)
-4. [Package a Talos extension](docs/04-talos-extension.md)
-5. [Install the early loader and construct the diagnostic UKI](docs/05-early-boot.md)
-6. [Optional Image Factory and private registry](docs/06-image-factory.md)
-7. [Optional Omni management](docs/07-omni.md)
-8. [Optional Proxmox passthrough and recovery](docs/08-proxmox.md)
-9. [Installation sequence and deployment boundary](docs/09-installation.md)
-10. [Verify actual GPU use](docs/10-verification.md)
-11. [Troubleshoot observed failures](docs/11-troubleshooting.md)
-12. [Rollback without deleting storage](docs/12-rollback.md)
-13. [Known limitations and production work](docs/13-known-limitations.md)
+Open one stage at a time. Each chapter starts with one action and a completion check.
+Time estimates cover reading or preparation, unless a page states otherwise.
 
-[Architecture](docs/architecture.md) · [Supporting benchmarks](docs/benchmarks.md) · [Technical write-up](docs/blog.md)
+1. **Prepare:** [01 — Prerequisites](docs/01-prerequisites.md).
+2. **Build locally:** [02 — Module](docs/02-build-module.md) → [03 — Firmware](docs/03-firmware.md) → [04 — Extension](docs/04-talos-extension.md).
+3. **Establish boot order:** [05 — Early loader](docs/05-early-boot.md).
+4. **Choose optional infrastructure:** [06 — Factory](docs/06-image-factory.md), [07 — Omni](docs/07-omni.md), [08 — Proxmox](docs/08-proxmox.md).
+5. **Validate and recover:** [09 — Installation](docs/09-installation.md) → [10 — Verification](docs/10-verification.md).
 
-## Pinned implementation
+<details>
+<summary>Open recovery and reference pages</summary>
+
+- [11 — Troubleshooting](docs/11-troubleshooting.md): find the observed failure and its next check.
+- [12 — Rollback](docs/12-rollback.md): preserve data and select stock recovery.
+- [13 — Known limitations](docs/13-known-limitations.md): review the production acceptance work.
+- [Architecture](docs/architecture.md): five diagrams and their sources.
+- [Benchmarks](docs/benchmarks.md) · [Technical write-up](docs/blog.md): supporting evidence and the implementation story.
+
+</details>
+
+## 3. See the build path
+
+![Source pins become a matching module, extension, early imager, and diagnostic UKI.](diagrams/build.svg)
+
+**Done when:** local checks pass, recovery is preserved, and the remaining boot limitations are understood.
+Local build success does not establish hardware boot success.
+
+<details>
+<summary>Open the local build command sequence</summary>
+
+Run these commands from the repository root on an amd64 Linux builder.
+Provide Docker, Go toolchain support, Python, PyYAML, kmod, zstd, patch, and GNU binutils.
+Read chapters 01–05 before starting the full build.
+
+```bash
+python3 scripts/checkout-sources.py "$PWD/work"
+JOBS=8 bash scripts/rebuild-module.sh "$PWD/work" "$PWD/work/kernel"
+bash scripts/extract-firmware.sh "$PWD/work"
+python3 scripts/package-extension.py \
+  "$PWD/work/kernel/module/gpu_unlock.ko" "$PWD/work/assets" \
+  "$PWD/work/extension" --source "$PWD/work/sources/gpu-unlock"
+bash scripts/build-early-imager.sh "$PWD/work" "$PWD/work/early"
+python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
+  --extension-tar "$PWD/work/extension/extension.rootfs.tar"
+```
+
+The output includes a base installer and a corrected `diagnostic.efi` sidecar.
+The script does **not** publish that sidecar as an Omni-managed installer.
+Read installation and rollback before any live boot change.
+Do not run upstream `make install` on the builder.
+
+</details>
+
+## 4. Check the tested scope
+
+The original full kernel/module build, extension packaging, early-loader boot, firmware access, and diagnostic recovery succeeded on existing hardware.
+The original reference UKI was reproduced byte-for-byte from preserved inputs.
+Read [build-validation.json](evidence/build-validation.json) for each portable script's validation scope.
+
+> **Not validated:** a fresh installation or repeatable managed dual-target restart.
+> Preserve the working diagnostic image while testing a new output.
+
+<details>
+<summary>Open exact versions, source pins, and artifact distinctions</summary>
 
 | Component | Version |
 |---|---|
@@ -60,41 +110,22 @@ Read [sources.lock.json](sources.lock.json) for tool images, hashes, official ex
 The published OCI candidate predates the diagnostic firmware-path correction.
 Its digest must not be substituted for the working diagnostic UKI hash.
 
-## Quick start: local build only
 
-Run these commands on an amd64 Linux builder with Docker, Go toolchain support, Python, PyYAML, kmod, zstd, patch, and GNU binutils.
-They do not upgrade a Talos node.
+</details>
 
-```bash
-python3 scripts/checkout-sources.py "$PWD/work"
-JOBS=8 bash scripts/rebuild-module.sh "$PWD/work" "$PWD/work/kernel"
-bash scripts/extract-firmware.sh "$PWD/work"
-python3 scripts/package-extension.py \
-  "$PWD/work/kernel/module/gpu_unlock.ko" "$PWD/work/assets" \
-  "$PWD/work/extension" --source "$PWD/work/sources/gpu-unlock"
-bash scripts/build-early-imager.sh "$PWD/work" "$PWD/work/early"
-python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
-  --extension-tar "$PWD/work/extension/extension.rootfs.tar"
-```
+No firmware, kernel module, boot image, certificate, credential, or private signing key is distributed here.
+Extract licensed firmware locally. Review redistribution rights before publishing firmware-containing images.
 
-The output includes a base installer and a corrected `diagnostic.efi` sidecar.
-The script does **not** silently republish that sidecar as an Omni-managed installer.
-Read the installation and rollback chapters before any live boot change.
-Do not run upstream `make install` on the builder.
+## 5. Verify this source bundle
 
-## Reproduction status
-
-The original full kernel/module build, extension packaging, early-loader boot, firmware access, and diagnostic recovery succeeded on existing hardware.
-The original reference UKI was reproduced byte-for-byte from preserved inputs.
-Portable scripts in this repository are validated separately in [build-validation.json](evidence/build-validation.json).
-A fresh installation and a repeatable managed dual-target restart are not claimed.
-
-## Verify this source bundle
+Run both commands from the repository root:
 
 ```bash
 sha256sum --check SHA256SUMS
 python3 scripts/validate-guide.py
 ```
 
-The validator checks local links, Bash examples, YAML/JSON parsing, source-lock relationships, and private-value patterns.
-It does not execute installation commands or prove a fresh boot.
+**Pass:** checksums match, links resolve, examples parse, and source pins agree.
+The validator does not execute installation commands or prove a fresh boot.
+
+**Next — 2 minutes:** open [01 — Prerequisites](docs/01-prerequisites.md) and check recovery access.

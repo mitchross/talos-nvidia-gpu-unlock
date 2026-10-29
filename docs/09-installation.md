@@ -1,5 +1,11 @@
 # 09 — Installation sequence and validation boundary
 
+**Start — 2 minutes:** Run offline verification before planning a live boot change.
+
+**You are here:** Installation boundary · build first.
+
+**Done when:** Offline checks pass and a reviewed platform-specific boot and recovery procedure exists.
+
 ## 1. Build without changing a running machine
 
 Complete chapters 01–05 in a new local work directory.
@@ -15,12 +21,20 @@ python3 scripts/verify-uki.py work/installer/diagnostic.efi work/verify \
   --module work/kernel/module/gpu_unlock.ko
 ```
 
-GNU objcopy can normalize a PE image while dumping sections.
-Inspect a disposable copy when byte-exact preservation matters.
+> **Stop if:** the selected normal profile contains a wipe argument or conflicting signature settings.
+
 Require one `module.sig_enforce=0`, no `module.sig_enforce=1`, an explicit target, and the firmware search path.
 Reject any `talos.experimental.wipe=` argument in the selected normal profile.
 The UKI also contains a separate destructive reset-maintenance profile.
+
+<details>
+<summary>UKI profile checks and PE inspection details</summary>
+
+GNU objcopy can normalize a PE image while dumping sections.
+Inspect a disposable copy when byte-exact preservation matters.
 The profile-aware verifier checks normal `main` inheritance rather than treating the final `.cmdline` section as the default.
+
+</details>
 
 ## 2. Preserve recovery before selecting a candidate
 
@@ -41,6 +55,9 @@ It modified only the EFI partition.
 The raw-disk writer is intentionally not distributed as a generic installation script.
 Its safeguards depended on private machine and disk identities.
 
+<details>
+<summary>Offline ESP adaptation; not a validated fresh-install procedure</summary>
+
 For offline inspection, copy an ESP image to a new file and inspect it with mtools:
 
 ```bash
@@ -60,6 +77,8 @@ Confirm your loader configuration and normal profile before any approved live de
 Bare-metal platform profiles, boot managers, and fresh Talos provisioning remain separately unvalidated.
 An ISO or installer-image change alone does not prove the corrected UKI is selected by firmware.
 
+</details>
+
 ## 4. Initialize only a verified target
 
 The known-good diagnostic selects one explicit guest BDF.
@@ -76,3 +95,7 @@ Restore normal scheduling independently of the Omni lock.
 Chapter 10 provides read-only verification and idempotent scheduling restoration examples.
 
 Failure recovery: preserve logs and select stock recovery. Do not overwrite the known-good candidate while investigating a new image.
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [open the three evidence levels](10-verification.md).

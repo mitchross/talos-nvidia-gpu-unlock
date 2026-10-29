@@ -1,6 +1,12 @@
 # 04 — Package the Talos extension
 
-## Inputs and commands
+**Start — 2 minutes:** Check the four baseline extensions before packaging your module.
+
+**You are here:** Local build · extension.
+
+**Done when:** The amd64 extension passes packaging checks and preserves your existing official extensions.
+
+## 1. Package the local extension
 
 Use the compiled module, verified firmware directory, and pinned upstream source notices.
 
@@ -23,12 +29,17 @@ rootfs/usr/lib/firmware/gpu-unlock/610.43.03/...
 rootfs/usr/local/share/licenses/gpu-unlock/...
 ```
 
+<details>
+<summary>Manifest compatibility and artifact identity</summary>
+
 See [extension-manifest.yaml](../examples/extension-manifest.yaml) and [Dockerfile.extension](../examples/Dockerfile.extension).
 The manifest's compatibility constraint is exactly `v1.14.5`.
 The local example uses a `local` version suffix; its image digest need not equal the historical reference.
 The original verified r2 OCI manifest digest is in `sources.lock.json`.
 
-## Preserve official extensions
+</details>
+
+## 2. Preserve official extensions
 
 The tested worker requires all four:
 
@@ -46,7 +57,7 @@ Do not add GPU Unlock to this late module list.
 Discover your own installed extensions before changing an image.
 Preserve other machine-specific extensions and NVIDIA runtime configuration.
 
-## Assemble and validate
+## 3. Assemble and validate
 
 ```bash
 python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
@@ -61,3 +72,7 @@ The custom imager from chapter 05 supplies the early loader.
 
 Failure: wrong architecture, incompatible manifest, omitted official extension, or missing dependency metadata.
 Recovery: discard only the new failed output, fix the inputs, and keep the running stock or known-good boot untouched.
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [open the early-boot diagram](05-early-boot.md).
