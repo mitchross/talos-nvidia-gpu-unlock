@@ -98,3 +98,15 @@ flowchart TD
 GPU schematics are amd64-only. Stock arm64 uses a separate schematic.
 The management services remain independent of Kubernetes availability.
 Rendered SVGs sit beside their Mermaid sources in `diagrams/`.
+
+## Render the Mermaid sources
+
+Use a headless Chromium configuration at `PUPPETEER_CONFIG`.
+The recorded local renderer was Mermaid CLI 11.12.0.
+
+```bash
+PUPPETEER_SKIP_DOWNLOAD=1 npm exec --yes --package=@mermaid-js/mermaid-cli@11.12.0 -- \
+  mmdc -p "$PUPPETEER_CONFIG" -i diagrams/boot.mmd -o diagrams/boot.svg
+```
+
+Repeat for the other four source files. Rendering does not contact Talos or change a VM.

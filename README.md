@@ -88,3 +88,13 @@ The original full kernel/module build, extension packaging, early-loader boot, f
 The original reference UKI was reproduced byte-for-byte from preserved inputs.
 Portable scripts in this repository are validated separately in [build-validation.json](evidence/build-validation.json).
 A fresh installation and a repeatable managed dual-target restart are not claimed.
+
+## Verify this source bundle
+
+```bash
+sha256sum --check SHA256SUMS
+python3 scripts/validate-guide.py
+```
+
+The validator checks local links, Bash examples, YAML/JSON parsing, source-lock relationships, and private-value patterns.
+It does not execute installation commands or prove a fresh boot.

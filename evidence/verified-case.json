@@ -69,5 +69,9 @@
     "VLLM::EngineCor",
     "VLLM::Worker_TP",
     "VLLM::Worker_TP"
+  ],
+  "vllm_worker_titles": [
+    "VLLM::Worker_TP0",
+    "VLLM::Worker_TP1"
   ]
 }
