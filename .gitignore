@@ -1,0 +1,13 @@
+work/
+validation-output/
+node_modules/
+__pycache__/
+*.pyc
+.env
+*.key
+*.pem
+*.crt
+*.ko
+*.bin
+*.efi
+*.docker.tar

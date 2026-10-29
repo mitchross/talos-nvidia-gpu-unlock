@@ -1,0 +1,31 @@
+name: gpu-unlock-artifacts
+services:
+  registry:
+    image: registry:3@sha256:d4032d4cc323c1731c707931ecada07a53076eac38e3b61ae57533f170f2c6c3
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      REGISTRY_HTTP_ADDR: "127.0.0.1:${REGISTRY_PORT:?Set the approved Pi port}"
+      REGISTRY_HTTP_DEBUG_ADDR: "127.0.0.1:${REGISTRY_DEBUG_PORT:-5001}"
+      REGISTRY_HTTP_SECRET: "${REGISTRY_HTTP_SECRET:?Set the persistent upload-session secret}"
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/server.key
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: GPU Unlock artifacts
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_STORAGE_DELETE_ENABLED: "false"
+      REGISTRY_LOG_LEVEL: info
+      OTEL_TRACES_EXPORTER: none
+    volumes:
+      - "${REGISTRY_DIR:?Set the approved persistent path}/data:/var/lib/registry"
+      - "${REGISTRY_DIR:?Set the approved persistent path}/certs:/certs:ro"
+      - "${REGISTRY_DIR:?Set the approved persistent path}/auth:/auth:ro"
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

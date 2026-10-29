@@ -1,0 +1,10 @@
+flowchart LR
+  A[Physical GPU A] --> V[VFIO and isolated PCI functions]
+  B[Physical GPU B] --> V
+  V --> P[Proxmox VM with UEFI and serial console]
+  P --> T[Early barrier initializes selected GPU A]
+  T --> N[NVIDIA driver and container runtime]
+  R[GPU B retains its preceding verified unlock] --> N
+  N --> K[Kubernetes GPU allocation]
+  K --> W[vLLM TP2 on both verified GPU UUIDs]
+  M[Omni machine lock] -. management guard .-> P

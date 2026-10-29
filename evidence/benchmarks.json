@@ -1,0 +1,83 @@
+{
+  "classification": "Supporting evidence; no measurements rerun for documentation",
+  "same_card_bf16_8192": [
+    {
+      "gpu": "GPU B",
+      "watts": 200,
+      "stock_tflops": 45.0,
+      "unlocked_tflops": 57.5,
+      "gain_percent": 27.8
+    },
+    {
+      "gpu": "GPU B",
+      "watts": 250,
+      "stock_tflops": 60.29,
+      "unlocked_tflops": 84.09,
+      "gain_percent": 39.5
+    }
+  ],
+  "qwen_unlock_comparison": {
+    "before": "GPU A stock; GPU B unlocked",
+    "after": "Both unlocked",
+    "watts_per_gpu": 200,
+    "prefill_gain_percent": [
+      14.0,
+      15.2,
+      21.8
+    ],
+    "output_gain_percent": [
+      7.0,
+      9.5,
+      11.1
+    ],
+    "decode_change_percent": [
+      -1.6,
+      -0.8,
+      -0.5
+    ],
+    "concurrency": [
+      1,
+      2,
+      4
+    ]
+  },
+  "power_experiment": {
+    "original_plan_complete": false,
+    "sample_counts": {
+      "five_repetition_configurations": 25,
+      "three_repetition_configurations": 9,
+      "partial_configurations": 2
+    },
+    "matched_workloads": 8,
+    "profiles": [
+      {
+        "watts_per_gpu": 200,
+        "actual_combined_mean_watts": 387.43145310169916,
+        "output_tps": 39.974348055624446,
+        "output_tokens_per_kwh": 371440.2944008597,
+        "joules_per_request": 2991.977965834867,
+        "mean_ttft_seconds": 10.057816301705637,
+        "mean_latency_seconds": 19.193198305765048
+      },
+      {
+        "watts_per_gpu": 225,
+        "actual_combined_mean_watts": 431.79067943714944,
+        "output_tps": 42.50075551713458,
+        "output_tokens_per_kwh": 354344.6562142739,
+        "joules_per_request": 3136.3283091210355,
+        "mean_ttft_seconds": 9.788190150823485,
+        "mean_latency_seconds": 18.2659234119998
+      },
+      {
+        "watts_per_gpu": 250,
+        "actual_combined_mean_watts": 472.7837978210404,
+        "output_tps": 43.295460065706465,
+        "output_tokens_per_kwh": 329672.1608373332,
+        "joules_per_request": 3371.0495106650696,
+        "mean_ttft_seconds": 9.469537625058686,
+        "mean_latency_seconds": 17.960137880764545
+      }
+    ]
+  },
+  "raw_evidence_policy": "Raw logs, hardware UUIDs, network identities, and service configurations remain private with the operator."
+}

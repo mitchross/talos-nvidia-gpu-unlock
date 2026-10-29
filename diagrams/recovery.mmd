@@ -1,0 +1,12 @@
+flowchart TD
+  A[Select candidate with stock recovery preserved] --> B[Early initialization]
+  B --> C{Fresh transaction and handoff succeed?}
+  C -->|Yes| D[Verify NVIDIA, selectors, scheduling, inference]
+  C -->|No| E[Barrier stops before Talos API]
+  E --> F[Capture serial or recovered kernel evidence]
+  F --> G[Select normal stock boot through console]
+  G --> H[Preserve every data disk and restore services]
+  D --> I[Keep Omni lock until lifecycle review]
+  H --> I
+  R[Retained GPU state on a warm restart] -. can fail .-> B
+  I --> J[No automatic retry or host power cycle]

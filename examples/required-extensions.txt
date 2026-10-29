@@ -1,0 +1,5 @@
+# Target-worker example only. Replace with the complete inventory of every served machine.
+siderolabs/iscsi-tools
+siderolabs/nonfree-kmod-nvidia-production
+siderolabs/nvidia-container-toolkit-production
+siderolabs/util-linux-tools

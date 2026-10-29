@@ -1,0 +1,4 @@
+ghcr.io/siderolabs/iscsi-tools:v0.2.0@sha256:584e1d106e424d3e17ddd43bddf892b386748f10d11a9fd024a358f0d42c0a2e
+ghcr.io/siderolabs/nvidia-container-toolkit-production:595.91.07-v1.19.1@sha256:04324c16e4675aa65c66442b052fa1a08cb23666ee0efa0b62e962de73d76bf4
+ghcr.io/siderolabs/util-linux-tools:2.42.2@sha256:f93f23e96b28e00228cf9a006a15c1648bd5975be989adb1bee6c05c046001a1
+ghcr.io/siderolabs/nonfree-kmod-nvidia-production:595.91.07-v1.14.5@sha256:623b6b73f16bd1db1334742bb3ce24f807da7cb9ead73cbcd5ff84839e02a2ca

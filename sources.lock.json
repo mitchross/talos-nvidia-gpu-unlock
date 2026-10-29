@@ -1,0 +1,128 @@
+{
+  "talos_version": "v1.14.5",
+  "kernel_release": "6.18.58-talos",
+  "driver_version": "595.91.07",
+  "firmware_version": "610.43.03",
+  "gpu_unlock_version": "2.0.0",
+  "source_commits": {
+    "gpu_unlock": "0532473b4b105ed216948ed9c5aaeab0fa5c734f",
+    "talos": "dad8d3edfe7ca381044d7cad259fdf3030efa700",
+    "talos_packages": "f4bda77bb9f8202cac8443a7284ce1c7aa129f38",
+    "image_factory": "45d147aba6b28d66d83a6229f21104d28ddb44a8"
+  },
+  "tool_images": {
+    "tools": "ghcr.io/siderolabs/tools:v1.14.0-11-g8dad45e@sha256:d072f2ea641b2e568db0110e1cbe936231fe56bfd3acbb37e139c3e3f715fb80",
+    "llvm": "ghcr.io/siderolabs/llvm:v1.14.0-11-g8dad45e@sha256:251882062d6ce367b3125bf50e64db69e42e09ddc03003d4a37b75c482f46496",
+    "imager": "ghcr.io/siderolabs/imager:v1.14.5@sha256:ef33373986bb0765132f0558ea43c9f8fee2c3839f1d1a4232693b77092d7350",
+    "installer_base": "ghcr.io/siderolabs/installer-base:v1.14.5@sha256:1644fe7ddfe3deb4b81487c3c7e49fce830eca862b608b32f577b866c8d36b48",
+    "factory_base": "ghcr.io/siderolabs/image-factory@sha256:d590896efe665a5c9d6707d59c62c88258015637359842e1acd52c6c473d7e88"
+  },
+  "go_toolchain": "go1.26.8",
+  "zstd_version": "1.5.7",
+  "kernel_tarball_sha256": "069b19f9032c4dac8149ae4b6520c35debca0f42a9f6d52ee55ba6ca9b818013",
+  "reference_module_sha256": "8c983c06aeebe36e3690a0c6e7872d5b454adb63abb7ca6c7315c7c0bd992924",
+  "reference_symvers_sha256": "b1554273ffc0dd0658a3e24bc821a2c5cdf03c3a1675d1f878ee404f219ce500",
+  "reference_kernel_config_sha256": "3026b323446f510b6ba8563e93f00c3732c98c3f360740c1d7c38c30be932ca0",
+  "reference_early_init_sha256": "81a8edcff71aa5627718d1018c965e92b84102496fc18fcee40d685ff6f32171",
+  "stock_initramfs_sha256": "8c36de2d10f180767c132f903a7e6bafbb7afae668aa06db15d5e7fa7faf4324",
+  "stock_uki_sha256": "cba9f97fe145e1e8eaa4ee902b317de793397881b759a657ff653d84fe84b899",
+  "diagnostic_uki_sha256": "9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910",
+  "gpu2_only_uki_sha256": "75c52a309c24f27c7b6b8a28ec178f7cf5013b1b6364bf90aebcba6f53bfd370",
+  "stock_recovery_esp_sha256": "da88f45758ff4c921916cfb1d25b3f8db1dc5c3aecd3f9afd547eda2b617b202",
+  "gpu_extension_manifest_digest": "sha256:ee0860850fbed0a32222f6b1d380e7eff67454f86019ee4dfa2152ba0f473119",
+  "candidate_index_digest": "sha256:452fdb3bca37bc1b4cc8f01be8adfd389f499c107d161d798519db4ed7548a5e",
+  "candidate_amd64_manifest_digest": "sha256:78bf0038b91ef44ea305d887ae6563b68f893cbd844c40fa2afa0af5e0d7690e",
+  "base_candidate_archive_sha256": "140ac9c8eec3a3bcdfaf3764a3b5d0d3dd0d7cc1c8fe0ed22d283d65a0c76a18",
+  "working_uki_published_as_oci": false,
+  "official_extension_references": [
+    "ghcr.io/siderolabs/iscsi-tools:v0.2.0@sha256:584e1d106e424d3e17ddd43bddf892b386748f10d11a9fd024a358f0d42c0a2e",
+    "ghcr.io/siderolabs/nvidia-container-toolkit-production:595.91.07-v1.19.1@sha256:04324c16e4675aa65c66442b052fa1a08cb23666ee0efa0b62e962de73d76bf4",
+    "ghcr.io/siderolabs/util-linux-tools:2.42.2@sha256:f93f23e96b28e00228cf9a006a15c1648bd5975be989adb1bee6c05c046001a1",
+    "ghcr.io/siderolabs/nonfree-kmod-nvidia-production:595.91.07-v1.14.5@sha256:623b6b73f16bd1db1334742bb3ce24f807da7cb9ead73cbcd5ff84839e02a2ca"
+  ],
+  "nvidia_inputs": {
+    "NVIDIA-kernel-module-source-610.43.03.tar.xz": {
+      "sha256": "7e118923c7a23edc36114d63273a46e3e04e9af98695a42203e7ac2dfe9fc1dc",
+      "bytes": 26172192
+    },
+    "NVIDIA-Linux-x86_64-610.43.03-no-compat32.run": {
+      "sha256": "e084451db730a6df29d3d74f655749c4d236e3c945f7d94b5205e84318fe2f90",
+      "bytes": 344190507
+    }
+  },
+  "firmware_assets": {
+    "NVIDIA-LICENSE": {
+      "sha256": "c692fb14ad4f499c6aee1b9e144e6905148c420e6225b17cb2937366c1e507ad",
+      "bytes": 22653
+    },
+    "booter_load_ad102.bin": {
+      "sha256": "6ee05b20e1dc244c08c052f36ef28469b8d09f4955d1fe33e48a179e11a7fd49",
+      "bytes": 57672
+    },
+    "booter_load_ga100.bin": {
+      "sha256": "b6e70d37fdbd23f3dee008165d9b3510e8faeb32a60a1689fb098e18d0c721bf",
+      "bytes": 60616
+    },
+    "booter_load_ga102.bin": {
+      "sha256": "056cbc064a888f80717726c54d7f64fcd68044d123870c95a74f37f4975dcaa4",
+      "bytes": 61256
+    },
+    "booter_load_tu102.bin": {
+      "sha256": "51507de61777cf46f3703a084cdfa896c21f6bc0c8af8f245bd09b2e9c49bf54",
+      "bytes": 59224
+    },
+    "falcon_loader.bin": {
+      "sha256": "f21f1cfbb8fffa8067685314367fc4c50f3f84dd99eda7c19db4292d9269b9d9",
+      "bytes": 768
+    },
+    "gsp_boot_ad102.bin": {
+      "sha256": "45d6335a8185d6ff13e8d1484cea73f68d3d13aa1c19dc080ed1c3482dd5bac0",
+      "bytes": 36864
+    },
+    "gsp_boot_desc_ad102.bin": {
+      "sha256": "83f8f3f1f5f9496e0ea8fc7103c2beb64d0b6de2f5ffe725f13514de5a95fa42",
+      "bytes": 84
+    },
+    "gsp_boot_desc_ga100.bin": {
+      "sha256": "9e7cca2cfdc5ce601b0adba39967850046108df6c2d23fff95578ca3f0ccbe01",
+      "bytes": 76
+    },
+    "gsp_boot_desc_ga102.bin": {
+      "sha256": "cc5a3fc1f4c47f2fe107b1b68f0176d8a448e6dec84b575e5560ccef5262bf15",
+      "bytes": 84
+    },
+    "gsp_boot_desc_tu102.bin": {
+      "sha256": "9e7cca2cfdc5ce601b0adba39967850046108df6c2d23fff95578ca3f0ccbe01",
+      "bytes": 76
+    },
+    "gsp_boot_ga100.bin": {
+      "sha256": "b80c6623f09df2f155ab335095575c637aef5e66cba6542e047422a6bab094e4",
+      "bytes": 4096
+    },
+    "gsp_boot_ga102.bin": {
+      "sha256": "3df651acb174fd5f5561a1996965b192f50c5d763168446ed0d4ead19d895768",
+      "bytes": 24576
+    },
+    "gsp_boot_tu102.bin": {
+      "sha256": "8765694cd38beaa4e2b8b1b83a31fb7aee6cb9d8b7c6bc7a86e6d931a3a056c2",
+      "bytes": 4096
+    },
+    "gsp_ga10x.bin": {
+      "sha256": "572373620a37418f24dc16b5031c39338778c3257e48e8408de9a57291b24f3a",
+      "bytes": 84277400
+    },
+    "gsp_tu10x.bin": {
+      "sha256": "73065619db9ec921d19fc4e519dd04d91a9199b525eaca9b257b89fb8c5ec52c",
+      "bytes": 29352832
+    },
+    "sec2_bl_tu102.bin": {
+      "sha256": "f21f1cfbb8fffa8067685314367fc4c50f3f84dd99eda7c19db4292d9269b9d9",
+      "bytes": 768
+    }
+  },
+  "validation_scope": "Existing hardware diagnostic boot and exact reference replay; no fresh-install or managed dual-target reboot validation",
+  "stock_linux_amd64_sha256": "02c08d4c5ee771ed94e2602ce1721aa24fc0d95f2244ec75a29e0456e8ca8985",
+  "factory_go_toolchain": "go1.27.0",
+  "reference_desired_schematic_id": "0a6ab246b6fa8cc65fd4b0a90fb74e6b287ada23713b02e3d0726a4794c3e78c",
+  "reference_stock_extensions_schematic_id": "a7f28b0911f104b421ae99841c58fa52b6694bf960e384442f8746ef792d1f82"
+}

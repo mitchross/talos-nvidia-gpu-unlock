@@ -1,0 +1,333 @@
+--- a/internal/frontend/http/oci/registry.go
++++ b/internal/frontend/http/oci/registry.go
+@@ -6,11 +6,15 @@
+ 
+ import (
+ 	"context"
++	"fmt"
+ 	"net/http"
+ 	"net/http/httputil"
+ 	"net/url"
+ 	"strconv"
+ 
++	"github.com/google/go-containerregistry/pkg/authn"
++	"github.com/google/go-containerregistry/pkg/name"
++	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
+ 	"github.com/google/go-containerregistry/pkg/v1/types"
+ 	"github.com/siderolabs/gen/xerrors"
+ 	"go.uber.org/zap"
+@@ -75,9 +79,7 @@
+ 
+ 		requestLogger := ctxlog.Logger(ctx, logger)
+ 		if location.Proxy {
+-			proxyRegistryRequest(requestLogger, target, w, req)
+-
+-			return nil
++			return proxyRegistryRequest(requestLogger, target, location.Repository, w, req)
+ 		}
+ 
+ 		requestLogger.Info("redirecting manifest/blob", zap.Stringer("location", target))
+@@ -95,8 +97,28 @@
+ 	}
+ }
+ 
+-func proxyRegistryRequest(logger *zap.Logger, location *url.URL, w http.ResponseWriter, req *http.Request) {
++func proxyRegistryRequest(logger *zap.Logger, location *url.URL, repository string, w http.ResponseWriter, req *http.Request) error {
+ 	logger.Info("proxying registry request", zap.Stringer("location", location))
++
++	var options []name.Option
++	if location.Scheme == "http" {
++		options = append(options, name.Insecure)
++	}
++	upstream, err := name.NewRegistry(location.Host, options...)
++	if err != nil {
++		return fmt.Errorf("parse backing registry: %w", err)
++	}
++	authenticator, err := authn.DefaultKeychain.Resolve(upstream)
++	if err != nil {
++		return fmt.Errorf("resolve backing registry credentials: %w", err)
++	}
++	var backendTransport http.RoundTripper = remotewrap.GetTransport()
++	if authenticator != authn.Anonymous {
++		backendTransport, err = transport.NewWithContext(req.Context(), upstream, authenticator, backendTransport, []string{"repository:" + repository + ":pull"})
++		if err != nil {
++			return fmt.Errorf("authenticate to backing registry: %w", err)
++		}
++	}
+ 
+ 	proxy := &httputil.ReverseProxy{
+ 		Director: func(out *http.Request) { //nolint:staticcheck // refactor me later to use Rewrite
+@@ -112,7 +134,9 @@
+ 			out.Host = ""
+ 			out.Header.Del("Authorization")
+ 		},
+-		Transport: remotewrap.GetTransport(),
++		Transport: backendTransport,
+ 	}
+ 	proxy.ServeHTTP(w, req)
++
++	return nil
+ }
+--- a/internal/artifacts/dependency.go
++++ b/internal/artifacts/dependency.go
+@@ -12,7 +12,11 @@
+ 	"github.com/google/go-containerregistry/pkg/name"
+ 	v1 "github.com/google/go-containerregistry/pkg/v1"
+ 	"github.com/google/go-containerregistry/pkg/v1/layout"
++	"github.com/siderolabs/gen/xerrors"
+ )
++
++// UnsupportedArchitectureTag identifies a schematic extension without this platform.
++type UnsupportedArchitectureTag struct{}
+ 
+ // ImageDependency identifies the exact platform manifest consumed from an OCI image.
+ type ImageDependency struct {
+@@ -115,5 +119,5 @@
+ 		}
+ 	}
+ 
+-	return v1.Descriptor{}, fmt.Errorf("OCI layout has no linux/%s manifest", arch)
++	return v1.Descriptor{}, xerrors.NewTaggedf[UnsupportedArchitectureTag]("OCI layout has no linux/%s manifest", arch)
+ }
+--- a/internal/registry/service.go
++++ b/internal/registry/service.go
+@@ -385,6 +385,10 @@
+ 
+ 		enhancement, err := f.enhance(ctx, prof, configuration, versionTag)
+ 		if err != nil {
++			if xerrors.TagIs[artifacts.UnsupportedArchitectureTag](err) {
++				f.reqLogger(ctx).Info("schematic does not support architecture", zap.String("architecture", string(arch)))
++				continue
++			}
+ 			return v1.Hash{}, fmt.Errorf("error enhancing profile from schematic: %w", err)
+ 		}
+ 
+@@ -425,6 +429,10 @@
+ 		for _, dependency := range enhancement.Dependencies {
+ 			dependencies = append(dependencies, resolvedImageDependency(dependency.Kind, dependency.Arch, dependency.Image))
+ 		}
++	}
++
++	if len(platforms) == 0 {
++		return v1.Hash{}, fmt.Errorf("schematic has no supported installer architecture")
+ 	}
+ 
+ 	schematicDigest, err := v1.NewHash("sha256:" + schematicID)
+--- /dev/null
++++ b/internal/frontend/http/oci/local_private_registry_test.go
+@@ -0,0 +1,36 @@
++package oci_test
++
++import (
++	"net/http"
++	"net/http/httptest"
++	"testing"
++
++	"github.com/julienschmidt/httprouter"
++	"github.com/stretchr/testify/require"
++	"go.uber.org/zap"
++
++	"github.com/siderolabs/image-factory/internal/frontend/http/oci"
++	"github.com/siderolabs/image-factory/internal/registry"
++)
++
++func TestLocalPrivateBackingRegistryRequiresUpstreamCredentials(t *testing.T) {
++	backing := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		user, pass, ok := r.BasicAuth()
++		if !ok || user != "fixture" || pass != "fixture-password" {
++			w.Header().Set("WWW-Authenticate", `Basic realm="private registry"`)
++			w.WriteHeader(http.StatusUnauthorized)
++			return
++		}
++		w.WriteHeader(http.StatusOK)
++	}))
++	defer backing.Close()
++	upstream := httptest.NewRequest(http.MethodGet, backing.URL, nil)
++	service := &registryStub{proxy: registry.Location{Scheme: upstream.URL.Scheme, Host: upstream.URL.Host, Repository: "factory/installer", Resource: "manifests", Reference: "fixture", Proxy: true}}
++	route := requireRoute(t, oci.NewRegistryHandler(service, zap.NewNop()).Routes(), http.MethodGet)
++	request := httptest.NewRequest(http.MethodGet, "/v2/siderolabs/image/tags/list", nil)
++	request.SetBasicAuth("fixture", "fixture-password")
++	response := httptest.NewRecorder()
++	require.NoError(t, route.Handler(t.Context(), response, request, httprouter.Params{{Key: "path", Value: "/siderolabs/image/tags/list"}}))
++	require.Equal(t, http.StatusUnauthorized, response.Code)
++	t.Log("Native proxy strips caller credentials and does not authenticate to the private backing registry.")
++}
+--- /dev/null
++++ b/internal/frontend/http/oci/local_proxy_auth_fix_test.go
+@@ -0,0 +1,47 @@
++package oci_test
++
++import (
++	"encoding/base64"
++	"encoding/json"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"testing"
++
++	"github.com/julienschmidt/httprouter"
++	"github.com/stretchr/testify/require"
++	"go.uber.org/zap"
++
++	"github.com/siderolabs/image-factory/internal/frontend/http/oci"
++	"github.com/siderolabs/image-factory/internal/registry"
++)
++
++func TestLocalProxyUsesBackendCredentialsWithoutForwardingCallerToken(t *testing.T) {
++	backing := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		user, pass, ok := r.BasicAuth()
++		if !ok || user != "fixture" || pass != "backend-password" {
++			w.Header().Set("WWW-Authenticate", `Basic realm="private registry"`)
++			w.WriteHeader(http.StatusUnauthorized)
++			return
++		}
++		w.Header().Set("Docker-Content-Digest", "sha256:fixture")
++		w.WriteHeader(http.StatusOK)
++	}))
++	defer backing.Close()
++	upstream := httptest.NewRequest(http.MethodGet, backing.URL, nil)
++	directory := t.TempDir()
++	config, err := json.Marshal(map[string]any{"auths": map[string]any{upstream.URL.Host: map[string]string{"auth": base64.StdEncoding.EncodeToString([]byte("fixture:backend-password"))}}})
++	require.NoError(t, err)
++	require.NoError(t, os.WriteFile(filepath.Join(directory, "config.json"), config, 0o600))
++	t.Setenv("DOCKER_CONFIG", directory)
++	service := &registryStub{proxy: registry.Location{Scheme: upstream.URL.Scheme, Host: upstream.URL.Host, Repository: "factory/installer", Resource: "manifests", Reference: "fixture", Proxy: true}}
++	route := requireRoute(t, oci.NewRegistryHandler(service, zap.NewNop()).Routes(), http.MethodGet)
++	request := httptest.NewRequest(http.MethodGet, "/v2/siderolabs/image/tags/list", nil)
++	request.Header.Set("Authorization", "Bearer client-token-must-not-reach-backend")
++	response := httptest.NewRecorder()
++	require.NoError(t, route.Handler(t.Context(), response, request, httprouter.Params{{Key: "path", Value: "/siderolabs/image/tags/list"}}))
++	require.Equal(t, http.StatusOK, response.Code)
++	require.Empty(t, response.Header().Get("Location"))
++	t.Log("Authenticated native proxy passed; client token was replaced with configured backend credentials and no redirect was emitted.")
++}
+--- /dev/null
++++ b/internal/frontend/http/oci/local_tls_test.go
+@@ -0,0 +1,34 @@
++package oci_test
++
++import (
++	"encoding/base64"
++	"encoding/json"
++	"github.com/julienschmidt/httprouter"
++	"github.com/siderolabs/image-factory/internal/frontend/http/oci"
++	"github.com/siderolabs/image-factory/internal/registry"
++	"github.com/stretchr/testify/require"
++	"go.uber.org/zap"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"testing"
++)
++
++func TestLocalProxyRejectsUntrustedTLS(t *testing.T) {
++	backend := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) }))
++	defer backend.Close()
++	upstream := httptest.NewRequest(http.MethodGet, backend.URL, nil)
++	directory := t.TempDir()
++	config, err := json.Marshal(map[string]any{"auths": map[string]any{upstream.URL.Host: map[string]string{"auth": base64.StdEncoding.EncodeToString([]byte("fixture:password"))}}})
++	require.NoError(t, err)
++	require.NoError(t, os.WriteFile(filepath.Join(directory, "config.json"), config, 0600))
++	t.Setenv("DOCKER_CONFIG", directory)
++	service := &registryStub{proxy: registry.Location{Scheme: "https", Host: upstream.URL.Host, Repository: "factory/installer", Resource: "manifests", Reference: "fixture", Proxy: true}}
++	route := requireRoute(t, oci.NewRegistryHandler(service, zap.NewNop()).Routes(), http.MethodGet)
++	req := httptest.NewRequest(http.MethodGet, "/v2/siderolabs/image/tags/list", nil)
++	response := httptest.NewRecorder()
++	err = route.Handler(t.Context(), response, req, httprouter.Params{{Key: "path", Value: "/siderolabs/image/tags/list"}})
++	require.Error(t, err)
++	require.Contains(t, err.Error(), "certificate")
++}
+--- /dev/null
++++ b/internal/registry/local_architecture_test.go
+@@ -0,0 +1,89 @@
++package registry_test
++
++import (
++	"bytes"
++	"context"
++	"errors"
++	"strings"
++	"testing"
++
++	"github.com/google/go-containerregistry/pkg/name"
++	v1 "github.com/google/go-containerregistry/pkg/v1"
++	"github.com/google/go-containerregistry/pkg/v1/empty"
++	"github.com/google/go-containerregistry/pkg/v1/remote"
++	"github.com/google/go-containerregistry/pkg/v1/tarball"
++	"github.com/siderolabs/gen/xerrors"
++	"github.com/siderolabs/image-factory/internal/artifacts"
++	"github.com/siderolabs/image-factory/internal/profile"
++	"github.com/siderolabs/image-factory/internal/registry"
++	"github.com/siderolabs/image-factory/pkg/schematic"
++	talosprofile "github.com/siderolabs/talos/pkg/imager/profile"
++	"github.com/stretchr/testify/require"
++)
++
++type architectureBackend struct {
++	buildBackend
++	indexes []*v1.IndexManifest
++}
++
++func (b *architectureBackend) Push(_ context.Context, _ name.Reference, value remote.Taggable) error {
++	index, ok := value.(v1.ImageIndex)
++	if !ok {
++		return errors.New("expected index")
++	}
++	manifest, err := index.IndexManifest()
++	if err != nil {
++		return err
++	}
++	b.indexes = append(b.indexes, manifest)
++	return nil
++}
++
++func TestLocalArchitectureIntersection(t *testing.T) {
++	for _, tc := range []struct {
++		name      string
++		supported []string
++		failure   bool
++		wantErr   bool
++	}{
++		{"gpu-amd64", []string{"amd64"}, false, false},
++		{"stock-multiarch", []string{"amd64", "arm64"}, false, false},
++		{"no-supported-platform", nil, false, true},
++		{"ordinary-failure-is-not-skipped", []string{"amd64"}, true, true},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			repo, err := name.NewRepository("registry.example.com/cache")
++			require.NoError(t, err)
++			tag, err := name.NewTag("example.com/installer:test")
++			require.NoError(t, err)
++			var archive bytes.Buffer
++			require.NoError(t, tarball.Write(tag, empty.Image, &archive))
++			backend := &architectureBackend{}
++			var calls []string
++			service := registry.New(schematicSource{}, nil, buildAsset(archive.Bytes()), func(_ context.Context, prof talosprofile.Profile, _ *schematic.Schematic, _ string) (profile.EnhancementResult, error) {
++				if tc.failure {
++					return profile.EnhancementResult{}, errors.New("signature rejected")
++				}
++				for _, arch := range tc.supported {
++					if arch == prof.Arch {
++						return profile.EnhancementResult{Profile: prof}, nil
++					}
++				}
++				return profile.EnhancementResult{}, xerrors.NewTaggedf[artifacts.UnsupportedArchitectureTag]("no linux/%s", prof.Arch)
++			}, registry.Options{InternalRepository: repo, ExternalRepository: repo, Puller: backend, Pusher: backend, Signer: &recordingSigner{calls: &calls}})
++			_, err = service.Manifest(t.Context(), registry.Request{Image: "nocloud-installer", Schematic: strings.Repeat("b", 64), Reference: "v1.14.5"})
++			if tc.wantErr {
++				require.Error(t, err)
++				require.Empty(t, backend.indexes)
++				return
++			}
++			require.NoError(t, err)
++			require.NotEmpty(t, backend.indexes)
++			var actual []string
++			for _, descriptor := range backend.indexes[0].Manifests {
++				actual = append(actual, descriptor.Platform.Architecture)
++			}
++			require.Equal(t, tc.supported, actual)
++		})
++	}
++}

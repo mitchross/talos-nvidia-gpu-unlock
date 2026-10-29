@@ -1,0 +1,73 @@
+{
+  "verified_utc": "2026-10-29T21:26:50.359751+00:00",
+  "scope": "Existing two-GPU diagnostic session; not a fresh installation or repeatable managed dual-target boot",
+  "versions": {
+    "talos": "v1.14.5",
+    "kernel": "6.18.58-talos",
+    "nvidia": "595.91.07",
+    "gpu_unlock": "2.0.0",
+    "omni": "v1.12.4"
+  },
+  "node_ready": true,
+  "node_cordoned": false,
+  "node_taints": [],
+  "scheduling_changes_needed": false,
+  "inference_http": 200,
+  "omni_lock_preserved": true,
+  "active_uki_sha256": "9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910",
+  "uki_hash_read_method": "Read-only FAT32 traversal of the live EFI partition; disk opened rb",
+  "selected_loader_targets": [
+    "0000:01:00.0"
+  ],
+  "second_card_state": "Retained after preceding successful GPU-specific boot transaction",
+  "gpus": [
+    {
+      "label": "GPU A",
+      "guest_pci": "0000:01:00.0",
+      "plm": "0xffffffff",
+      "ss0": "0x88888888",
+      "ss1": "0x8",
+      "verified_full_selectors": true
+    },
+    {
+      "label": "GPU B",
+      "guest_pci": "0000:02:00.0",
+      "plm": "0xffffffff",
+      "ss0": "0x88888888",
+      "ss1": "0x8",
+      "verified_full_selectors": true
+    }
+  ],
+  "early_boot_log": [
+    "[2026-10-29T16:16:38.87654353Z]: [talos] [initramfs] gpu-unlock barrier: inserting module; targets=0000:01:00.0",
+    "[2026-10-29T16:16:40.125473369Z]: pci 0000:01:00.0: gpu_unlock: unlocked",
+    "[2026-10-29T16:16:40.129912789Z]: [talos] [initramfs] gpu-unlock barrier: complete; targets=0000:01:00.0; permitting machined",
+    "[2026-10-29T16:17:17.742997205Z]: NVRM: loading NVIDIA UNIX x86_64 Kernel Module  595.91.07  Wed Jul 29 02:50:21 UTC 2026"
+  ],
+  "transaction_log_provenance": {
+    "GPU A": {
+      "source_sha256": "781aeb176713f72f8414ccc217d74e01b7e5b187f5bc358c31dfd2e96a6e84b4",
+      "type": "serial console capture",
+      "selected_sanitized_lines": [
+        "[    3.794188] [talos] [initramfs] gpu-unlock barrier: inserting module; targets=0000:01:00.0",
+        "[    5.042822] pci 0000:01:00.0: gpu_unlock: unlocked",
+        "[    5.047241] [talos] [initramfs] gpu-unlock barrier: complete; targets=0000:01:00.0; permitting machined"
+      ]
+    },
+    "GPU B": {
+      "source_sha256": "ab05068607b7d827cffb250f92f5eefa853770f956009fb3b2b28d198edb8bad",
+      "type": "serial console capture",
+      "selected_sanitized_lines": [
+        "[    3.479566] [talos] [initramfs] gpu-unlock barrier: inserting module; targets=0000:02:00.0",
+        "[    4.725774] pci 0000:02:00.0: gpu_unlock: unlocked",
+        "[    4.730073] [talos] [initramfs] gpu-unlock barrier: complete; targets=0000:02:00.0; permitting machined"
+      ]
+    }
+  },
+  "vllm_process_names": [
+    "vllm",
+    "VLLM::EngineCor",
+    "VLLM::Worker_TP",
+    "VLLM::Worker_TP"
+  ]
+}

@@ -1,0 +1,36 @@
+http:
+  httpListenAddr: 192.0.2.15:8443
+  externalURL: https://factory.example.invalid:8443
+  certFile: /tls/fullchain.pem
+  keyFile: /tls/privkey.pem
+build:
+  maxConcurrency: 1
+  minTalosVersion: 1.14.5
+cache:
+  oci:
+    registry: localhost:5000
+    namespace: readiness
+    repository: asset-cache-final1
+  signingKeyPath: /keys/cache-signing.pem
+artifacts:
+  core:
+    registry: localhost:5000
+    components:
+      extensionManifest: readiness/catalog
+      imager: readiness/imager
+  schematic:
+    registry: localhost:5000
+    namespace: readiness
+    repository: schematics
+  installer:
+    internal:
+      registry: localhost:5000
+      namespace: readiness
+      repository: installers-final1
+containerSignature:
+  disabled: false
+  publicKeyFile: /trust/input-signing.pub
+  subjectRegExp: (@siderolabs\.com$|^releasemgr-svc@talos-production\.iam\.gserviceaccount\.com$)
+  issuer: https://accounts.google.com
+metrics:
+  addr: ''

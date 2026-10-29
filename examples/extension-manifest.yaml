@@ -1,0 +1,9 @@
+version: v1alpha1
+metadata:
+  name: gpu-unlock
+  version: 2.0.0-v1.14.5-local
+  author: Talos GPU Unlock integration
+  description: External GPU Unlock module and locally extracted firmware; requires the early loader.
+  compatibility:
+    talos:
+      version: "= v1.14.5"

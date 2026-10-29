@@ -1,0 +1,19 @@
+baseProfileName: installer
+arch: amd64
+platform: nocloud
+secureboot: false
+version: v1.14.5
+input:
+  baseInstaller:
+    imageRef: ghcr.io/siderolabs/installer-base:v1.14.5@sha256:1644fe7ddfe3deb4b81487c3c7e49fce830eca862b608b32f577b866c8d36b48
+  systemExtensions: []
+output:
+  kind: installer
+  outFormat: raw
+customization:
+  extraKernelArgs:
+  - -module.sig_enforce
+  - module.sig_enforce=0
+  - -panic
+  - panic=0
+  - gpu_unlock.targets=0000:01:00.0

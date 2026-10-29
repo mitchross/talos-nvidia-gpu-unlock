@@ -1,0 +1,14 @@
+flowchart LR
+  A[GPU Unlock source pin] --> B[External module]
+  K[Pinned Linux and Sidero config] --> C[Full local kernel build]
+  C --> S[Headers and Module.symvers]
+  S --> B
+  F[NVIDIA inputs extracted locally] --> E[amd64 extension rootfs]
+  B --> E
+  T[Pinned Talos source plus loader patch] --> I[Early init binary]
+  I --> M[Local custom imager]
+  E --> M
+  N[All required official extensions] --> M
+  M --> O[Base installer archive]
+  O --> P[Corrected diagnostic UKI sidecar]
+  X[Stock Talos Linux binary stays unchanged] -.-> M

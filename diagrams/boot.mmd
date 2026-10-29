@@ -1,0 +1,14 @@
+flowchart TD
+  A[UEFI selects diagnostic UKI] --> B[Stock kernel and embedded initramfs]
+  B --> C[Early init mounts root and extension layers]
+  C --> D[Bind firmware before custom loader]
+  D --> E{Explicit GPU target argument?}
+  E -->|Absent| H[Switch root and start machined]
+  E -->|Present| F[Check signatures, targets, and no bound driver]
+  F --> G[Synchronous finit_module with targets parameter]
+  G --> V{Fresh success for every selected GPU?}
+  V -->|Yes| H
+  V -->|No| Z[Closed barrier; preserve console failure]
+  H --> J[NVIDIA initializes GPUs]
+  J --> Q[Verify UUIDs and selectors]
+  Q --> W[vLLM CUDA inference]

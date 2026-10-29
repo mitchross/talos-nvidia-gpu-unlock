@@ -1,0 +1,397 @@
+--- a/internal/app/init/main.go
++++ b/internal/app/init/main.go
+@@ -23,6 +23,7 @@
+ 	"github.com/siderolabs/go-procfs/procfs"
+ 	"golang.org/x/sys/unix"
+ 
++	"github.com/siderolabs/talos/internal/pkg/gpuunlock"
+ 	"github.com/siderolabs/talos/internal/pkg/mount/switchroot"
+ 	"github.com/siderolabs/talos/internal/pkg/mount/v3"
+ 	"github.com/siderolabs/talos/internal/pkg/rng"
+@@ -88,6 +89,10 @@
+ 	}
+ 
+ 	// Switch into the new rootfs.
++	if err := gpuunlock.Boot(constants.NewRoot); err != nil {
++		return fmt.Errorf("gpu-unlock barrier: %w", err)
++	}
++
+ 	log.Println("entering the rootfs")
+ 
+ 	return switchroot.Switch(constants.NewRoot, pseudo)
+--- /dev/null
++++ b/internal/pkg/gpuunlock/devices.go
+@@ -0,0 +1,92 @@
++// Code generated from GPU Unlock 0532473 recipes.c; DO NOT EDIT.
++package gpuunlock
++
++var supported = map[string]bool{
++	"0x1e03": true,
++	"0x1e04": true,
++	"0x1e07": true,
++	"0x1e2d": true,
++	"0x1e2e": true,
++	"0x1e81": true,
++	"0x1e82": true,
++	"0x1e84": true,
++	"0x1e87": true,
++	"0x1e89": true,
++	"0x1ec2": true,
++	"0x1ec7": true,
++	"0x1f02": true,
++	"0x1f03": true,
++	"0x1f06": true,
++	"0x1f07": true,
++	"0x1f08": true,
++	"0x1f42": true,
++	"0x1f47": true,
++	"0x2200": true,
++	"0x2203": true,
++	"0x2204": true,
++	"0x2205": true,
++	"0x2206": true,
++	"0x2207": true,
++	"0x2208": true,
++	"0x220a": true,
++	"0x220d": true,
++	"0x2216": true,
++	"0x222b": true,
++	"0x222f": true,
++	"0x2414": true,
++	"0x2480": true,
++	"0x2482": true,
++	"0x2483": true,
++	"0x2484": true,
++	"0x2486": true,
++	"0x2487": true,
++	"0x2488": true,
++	"0x2489": true,
++	"0x248a": true,
++	"0x248c": true,
++	"0x248d": true,
++	"0x248e": true,
++	"0x249c": true,
++	"0x249d": true,
++	"0x249f": true,
++	"0x24a0": true,
++	"0x24a4": true,
++	"0x24ac": true,
++	"0x24ad": true,
++	"0x24af": true,
++	"0x24bf": true,
++	"0x24c0": true,
++	"0x24c7": true,
++	"0x24c8": true,
++	"0x24c9": true,
++	"0x24dc": true,
++	"0x24dd": true,
++	"0x24df": true,
++	"0x24e0": true,
++	"0x2501": true,
++	"0x2503": true,
++	"0x2504": true,
++	"0x2505": true,
++	"0x2507": true,
++	"0x2508": true,
++	"0x2509": true,
++	"0x252f": true,
++	"0x2544": true,
++	"0x2684": true,
++	"0x2685": true,
++	"0x2689": true,
++	"0x2702": true,
++	"0x2704": true,
++	"0x2705": true,
++	"0x2709": true,
++	"0x2757": true,
++	"0x2782": true,
++	"0x2783": true,
++	"0x2786": true,
++	"0x2803": true,
++	"0x2805": true,
++	"0x2882": true,
++	"0x28a0": true,
++	"0x28e0": true,
++	"0x28e1": true,
++}
+--- /dev/null
++++ b/internal/pkg/gpuunlock/early.go
+@@ -0,0 +1,185 @@
++// SPDX-License-Identifier: MPL-2.0
++// Package gpuunlock provides an opt-in barrier before Talos starts machined.
++package gpuunlock
++
++import (
++	"errors"
++	"fmt"
++	"log"
++	"os"
++	"path/filepath"
++	"regexp"
++	"slices"
++	"strings"
++
++	"golang.org/x/sys/unix"
++)
++
++const modulePath = "usr/lib/modules/6.18.58-talos/extra/gpu_unlock.ko"
++
++var pciName = regexp.MustCompile(`^[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-7]$`)
++
++// Operations separates boot sequencing from hardware operations for local tests.
++type Operations struct {
++	Discover func() (map[string]bool, error)
++	Check    func([]string) error
++	Load     func(string, []string) error
++}
++
++// Run blocks its caller until insertion and per-card success checks finish.
++func Run(cmdline string, ops Operations) error {
++	var target string
++	for _, arg := range strings.Fields(cmdline) {
++		if value, ok := strings.CutPrefix(arg, "gpu_unlock.targets="); ok {
++			if target != "" || value == "" {
++				return errors.New("empty or duplicate gpu_unlock.targets")
++			}
++			target = strings.ToLower(value)
++		}
++	}
++	if target == "" {
++		return nil
++	}
++	devices, err := ops.Discover()
++	if err != nil {
++		return err
++	}
++	var selected []string
++	if target == "all" {
++		for name := range devices {
++			selected = append(selected, name)
++		}
++	} else {
++		for _, name := range strings.Split(target, ",") {
++			if !pciName.MatchString(name) || !devices[name] || slices.Contains(selected, name) {
++				return fmt.Errorf("invalid, unsupported, absent, or duplicate target %q", name)
++			}
++			selected = append(selected, name)
++		}
++	}
++	if len(selected) == 0 {
++		return errors.New("no supported GPU targets")
++	}
++	slices.Sort(selected)
++	if err = ops.Check(selected); err != nil {
++		return err
++	}
++	log.Printf("gpu-unlock barrier: inserting module; targets=%s", target)
++	if err = ops.Load("targets="+target, selected); err != nil {
++		return err
++	}
++	log.Printf("gpu-unlock barrier: complete; targets=%s; permitting machined", strings.Join(selected, ","))
++	return nil
++}
++
++// Boot runs after rootfs and firmware mounts, before switch_root executes machined.
++func Boot(root string) error {
++	cmdline, err := os.ReadFile("/proc/cmdline")
++	if err != nil {
++		return err
++	}
++	return Run(string(cmdline), Operations{
++		Discover: discover,
++		Check: func(targets []string) error {
++			state, err := os.ReadFile("/sys/module/module/parameters/sig_enforce")
++			if err != nil {
++				return err
++			}
++			if strings.TrimSpace(string(state)) != "N" {
++				return errors.New("module signature enforcement remains enabled")
++			}
++			for _, name := range []string{"nvidia", "nvidia_drm", "nvidia_modeset", "nvidia_uvm", "nouveau", "gpu_unlock"} {
++				if _, err := os.Stat(filepath.Join("/sys/module", name)); !errors.Is(err, os.ErrNotExist) {
++					return fmt.Errorf("refusing early unlock: module %s already present or inaccessible", name)
++				}
++			}
++			for _, name := range targets {
++				if _, err := os.Lstat(filepath.Join("/sys/bus/pci/devices", name, "driver")); !errors.Is(err, os.ErrNotExist) {
++					return fmt.Errorf("target %s already has a driver or is inaccessible", name)
++				}
++			}
++			return nil
++		},
++		Load: func(parameters string, targets []string) error {
++			fd, err := unix.Open("/dev/kmsg", unix.O_RDONLY|unix.O_NONBLOCK|unix.O_CLOEXEC, 0)
++			if err != nil {
++				return err
++			}
++			defer unix.Close(fd)
++			if _, err = messages(fd); err != nil {
++				return err
++			}
++			module, err := os.Open(filepath.Join(root, modulePath))
++			if err != nil {
++				return err
++			}
++			defer module.Close()
++			if err = unix.FinitModule(int(module.Fd()), parameters, 0); err != nil {
++				return fmt.Errorf("gpu_unlock insertion failed: %w", err)
++			}
++			records, err := messages(fd)
++			if err != nil {
++				return err
++			}
++			return VerifySuccess(records, targets)
++		},
++	})
++}
++
++func discover() (map[string]bool, error) {
++	entries, err := os.ReadDir("/sys/bus/pci/devices")
++	if err != nil {
++		return nil, err
++	}
++	devices := map[string]bool{}
++	for _, entry := range entries {
++		base := filepath.Join("/sys/bus/pci/devices", entry.Name())
++		vendor, err := os.ReadFile(filepath.Join(base, "vendor"))
++		if err != nil {
++			return nil, err
++		}
++		device, err := os.ReadFile(filepath.Join(base, "device"))
++		if err != nil {
++			return nil, err
++		}
++		if strings.TrimSpace(string(vendor)) == "0x10de" && supported[strings.TrimSpace(string(device))] {
++			devices[entry.Name()] = true
++		}
++	}
++	return devices, nil
++}
++
++func messages(fd int) ([]string, error) {
++	var records []string
++	buffer := make([]byte, 65536)
++	for {
++		n, err := unix.Read(fd, buffer)
++		if errors.Is(err, unix.EAGAIN) {
++			return records, nil
++		}
++		if err != nil {
++			return nil, fmt.Errorf("cannot verify kernel log: %w", err)
++		}
++		if n == 0 {
++			return nil, errors.New("unexpected kernel log EOF")
++		}
++		records = append(records, string(buffer[:n]))
++	}
++}
++
++// VerifySuccess rejects missing success records, including upstream init returning zero after a card failure.
++func VerifySuccess(records []string, targets []string) error {
++	for _, target := range targets {
++		found := false
++		for _, record := range records {
++			_, message, ok := strings.Cut(record, ";")
++			if ok && strings.SplitN(message, "\n", 2)[0] == "pci "+target+": gpu_unlock: unlocked" {
++				found = true
++			}
++		}
++		if !found {
++			return fmt.Errorf("no completed unlock success record for %s; stopping before NVIDIA", target)
++		}
++	}
++	return nil
++}
+--- /dev/null
++++ b/internal/pkg/gpuunlock/early_test.go
+@@ -0,0 +1,90 @@
++package gpuunlock
++
++import (
++	"errors"
++	"reflect"
++	"testing"
++	"time"
++)
++
++func TestBarrier(t *testing.T) {
++	for _, test := range []struct {
++		name, args                     string
++		failCheck, failLoad, wantError bool
++		wantCalls                      []string
++	}{
++		{"disabled", "", false, false, false, nil},
++		{"one", "gpu_unlock.targets=0000:01:00.0", false, false, false, []string{"discover", "check", "load"}},
++		{"all", "gpu_unlock.targets=all", false, false, false, []string{"discover", "check", "load"}},
++		{"bound", "gpu_unlock.targets=all", true, false, true, []string{"discover", "check"}},
++		{"insertion", "gpu_unlock.targets=all", false, true, true, []string{"discover", "check", "load"}},
++		{"absent", "gpu_unlock.targets=0000:03:00.0", false, false, true, []string{"discover"}},
++		{"duplicate", "gpu_unlock.targets=all gpu_unlock.targets=all", false, false, true, nil},
++		{"empty", "gpu_unlock.targets=", false, false, true, nil},
++		{"mixed", "gpu_unlock.targets=all,0000:01:00.0", false, false, true, []string{"discover"}},
++	} {
++		t.Run(test.name, func(t *testing.T) {
++			var calls []string
++			err := Run(test.args, Operations{
++				Discover: func() (map[string]bool, error) {
++					calls = append(calls, "discover")
++					return map[string]bool{"0000:01:00.0": true, "0000:02:00.0": true}, nil
++				},
++				Check: func(targets []string) error {
++					calls = append(calls, "check")
++					if test.failCheck {
++						return errors.New("bound")
++					}
++					return nil
++				},
++				Load: func(parameters string, targets []string) error {
++					calls = append(calls, "load")
++					if parameters == "targets=all" && len(targets) != 2 {
++						t.Fatal(targets)
++					}
++					if test.failLoad {
++						return errors.New("load")
++					}
++					return nil
++				},
++			})
++			if (err != nil) != test.wantError || !reflect.DeepEqual(calls, test.wantCalls) {
++				t.Fatalf("err=%v calls=%v", err, calls)
++			}
++		})
++	}
++}
++
++func TestBarrierWaitsForInsertionCompletion(t *testing.T) {
++	entered, release, done := make(chan struct{}), make(chan struct{}), make(chan error, 1)
++	go func() {
++		done <- Run("gpu_unlock.targets=all", Operations{
++			Discover: func() (map[string]bool, error) { return map[string]bool{"0000:01:00.0": true}, nil },
++			Check:    func([]string) error { return nil },
++			Load:     func(string, []string) error { close(entered); <-release; return nil },
++		})
++	}()
++	<-entered
++	select {
++	case err := <-done:
++		t.Fatalf("barrier returned before insertion completed: %v", err)
++	case <-time.After(10 * time.Millisecond):
++	}
++	close(release)
++	if err := <-done; err != nil {
++		t.Fatal(err)
++	}
++}
++
++func TestSuccessRequiresEverySelectedCard(t *testing.T) {
++	records := []string{"6,81,1234,-;pci 0000:01:00.0: gpu_unlock: unlocked\n"}
++	if err := VerifySuccess(records, []string{"0000:01:00.0"}); err != nil {
++		t.Fatal(err)
++	}
++	if err := VerifySuccess(records, []string{"0000:01:00.0", "0000:02:00.0"}); err == nil {
++		t.Fatal("accepted missing card")
++	}
++	if err := VerifySuccess([]string{"6,82,1235,-;pci 0000:01:00.0: gpu_unlock: unlock failed (-16)\n"}, []string{"0000:01:00.0"}); err == nil {
++		t.Fatal("accepted failed unlock")
++	}
++}

@@ -1,0 +1,2 @@
+FROM ghcr.io/siderolabs/imager:v1.14.5@sha256:ef33373986bb0765132f0558ea43c9f8fee2c3839f1d1a4232693b77092d7350
+COPY initramfs-early-amd64.xz /usr/install/amd64/initramfs.xz

@@ -1,0 +1,7 @@
+flowchart LR
+  D[amd64 desktop builds and signs] -->|SSH tunnel| R[Private TLS registry on loopback 5000]
+  F[Independent arm64 Image Factory host] -->|Backend auth and CA trust| R
+  O[Omni catalog and schematic management] -->|Native HTTPS 8443| F
+  T[Talos installer downloads] -->|Native HTTPS OCI proxy| F
+  F --> S[Separate stock arm64 schematic]
+  F --> G[amd64 GPU schematic]

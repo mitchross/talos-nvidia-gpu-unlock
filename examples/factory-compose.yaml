@@ -1,0 +1,31 @@
+name: talos-image-factory
+services:
+  image-factory:
+    image: ${FACTORY_IMAGE:?Choose the reviewed factory image}
+    restart: unless-stopped
+    network_mode: host
+    command:
+    - --config
+    - /config/config.yaml
+    environment:
+      DOCKER_CONFIG: /auth
+      SSL_CERT_FILE: /trust/ca-bundle.crt
+      TMPDIR: /work
+      GOMAXPROCS: '2'
+      GOMEMLIMIT: 1536MiB
+    volumes:
+    - ${FACTORY_DIR:?Choose the persistent factory directory}/config.yaml:/config/config.yaml:ro
+    - ${FACTORY_DIR}/tls:/tls:ro
+    - ${FACTORY_DIR}/auth:/auth:ro
+    - ${FACTORY_DIR}/trust:/trust:ro
+    - ${FACTORY_DIR}/keys:/keys:ro
+    - ${FACTORY_DIR}/work:/work
+    mem_limit: 4g
+    cpus: 1.0
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    pull_policy: never

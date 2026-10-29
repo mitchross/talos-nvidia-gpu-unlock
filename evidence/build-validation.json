@@ -1,0 +1,49 @@
+{
+  "validation_date": "2026-10-29",
+  "fresh_install_validated": false,
+  "newly_built_candidate_boot_tested": false,
+  "production_services_modified": false,
+  "validation_host_role": "amd64 desktop builder",
+  "source_checkout_pins_verified": true,
+  "full_kernel_module_rebuild_repeated_for_documentation": false,
+  "module_recipe_basis": "Previously successful full matching-kernel build; reused immutable verified module for packaging validation",
+  "firmware_17_file_hashes_verified": true,
+  "extension_package_script_executed": true,
+  "early_loader_race_tests_passed": true,
+  "early_init_sha256": "81a8edcff71aa5627718d1018c965e92b84102496fc18fcee40d685ff6f32171",
+  "early_init_byte_exact_reference_match": true,
+  "stock_initramfs_extraction_hash_verified": true,
+  "local_installer_assembly_executed": true,
+  "new_diagnostic_uki_sha256": "4d48e64d311e2c3298b219d8cc98a19d0104977e87a767667b5346c0459f7493",
+  "linux_kernel_matches_pinned_stock": true,
+  "module_matches_reference": true,
+  "firmware_files_present_directly_in_early_cpio": 16,
+  "module_dependencies_include_unlock_and_nvidia": true,
+  "normal_profile_signature_and_firmware_arguments_verified": true,
+  "reset_maintenance_profile_remains_destructive": true,
+  "original_reference_uki_replay_sha256": "9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910",
+  "factory_toolchain": "go1.27.0",
+  "factory_test_packages_passed": [
+    "internal/registry",
+    "internal/artifacts",
+    "internal/frontend/http/oci"
+  ],
+  "factory_runtime_images_built": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "custom_imager_arm64_initramfs_unchanged": true,
+  "mermaid_cli": "11.12.0",
+  "mermaid_diagrams_rendered": 5,
+  "candidate_signature_or_registry_publication_performed": false,
+  "qmp_helper_protocol_framing_checked_without_vm_access": true,
+  "new_guest_memory_capture_performed": false,
+  "portable_stock_rollback_assembled": true,
+  "stock_rollback_signature_enforcement_enabled": true,
+  "stock_rollback_no_unlock_target": true,
+  "compose_templates_schema_validated": true,
+  "factory_local_config_digests": {
+    "amd64": "sha256:39ca3d8a87d8166803cf2ce30f8262ac137b9277cfebf6cfea4f841d5d548042",
+    "arm64": "sha256:f9ceb83b0266899ecf3b7c4a1b999bc6153135a5b41df3c0af9cac5351541e3d"
+  }
+}
