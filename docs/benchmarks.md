@@ -1,14 +1,25 @@
 # Supporting performance evidence
 
+**Start — 2 minutes:** read the same-card table and the power recommendation.
+
+**You are here:** supporting evidence · installation remains the main guide.
+
+**Recommendation:** the measured mix favors 200 W per GPU for energy; 225 W offers an interactive tradeoff.
+
 Performance supports the installation evidence. It does not replace fresh initialization logs and verified GPU state.
 No benchmark was repeated for documentation.
 
-## Controlled same-card GEMM
+## 1. Controlled same-card GEMM
 
 GPU B was measured against itself before and after unlocking.
+<details>
+<summary>GEMM controls and accumulation settings</summary>
+
 NVIDIA driver, kernel, UUID, benchmark implementation, and power limits were held constant.
 The benchmark used CUDA event timing, warmups, FP32 accumulation, and five measured windows.
 Reduced FP16/BF16 reduction and FP16 accumulation were disabled.
+
+</details>
 
 | Power | Stock BF16 | Unlocked BF16 | Same-card gain |
 |---|---:|---:|---:|
@@ -20,7 +31,7 @@ It is not a causal same-card before/after result.
 The [upstream #17 report](https://github.com/Zagitta/gpu-unlock/issues/17) used 420 W and another system.
 Its roughly 67% BF16 gain is not directly comparable to a 200 W production cap.
 
-## Production Qwen inference
+## 2. Production Qwen inference
 
 The verified primary baseline was GPU A stock / GPU B unlocked, compared with both unlocked.
 Those roles reverse the earliest historical mixed configuration.
@@ -35,14 +46,19 @@ FP8 weight quantization does not make every operation native FP8 on Ampere.
 The recorded runtime selected Marlin FP8 weight processing with BF16 activations and FlashInfer attention.
 GEMM gains do not imply equal decode or end-to-end gains.
 
-## Power-efficiency study
+## 3. Power-efficiency study
 
 Both GPUs were unlocked throughout this separate experiment.
 This compares power limits, not stock versus unlocked hardware.
+<details>
+<summary>Shortened sweep and matched-workload methodology</summary>
+
 The original 270-batch plan was shortened.
 It retained 25 five-repetition configurations, added nine three-repetition configurations, and kept two partial configurations separately.
 The primary three-cap comparison uses eight matched workloads with at least three repetitions.
 Each workload contributes one median batch, independent of its sample count.
+
+</details>
 
 | Limit per GPU | Output tokens/s | Actual combined W | GPU-only output tokens/kWh |
 |---|---:|---:|---:|
@@ -66,3 +82,7 @@ Example electricity cost uses $0.20/kWh, not a claim about an operator's actual 
 
 Read [benchmarks.json](../evidence/benchmarks.json) for sanitized numeric evidence and methodology.
 Private raw measurements remain preserved with the operator.
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [check what remains unvalidated](13-known-limitations.md).

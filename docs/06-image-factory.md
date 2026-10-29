@@ -1,10 +1,18 @@
 # 06 — Optional Image Factory and private registry
 
+**Start — 2 minutes:** Choose local-only building or the optional independent Factory service.
+
+**You are here:** Optional infrastructure · Factory and registry.
+
+**Done when:** Your complete catalog, authenticated TLS pulls, signatures, and architecture boundaries are verified.
+
+**Skip this chapter** when you only need local image assembly without Factory or Omni.
+
 Standalone Talos users can build locally without Omni or an Image Factory service.
 Factory integration provides catalog discovery, schematics, signing, and installer serving.
 It does not automatically solve the diagnostic-to-production boot gap.
 
-## Community catalog discovery
+## 1. Build a complete community catalog
 
 A private registry image is not automatically selectable in Omni.
 The pinned community Image Factory can replace the complete core extension catalog through:
@@ -22,11 +30,16 @@ The replacement catalog must preserve every official extension required by every
 Our tested catalog covered ten official extensions across seven machines, plus GPU Unlock.
 A GPU-only four-extension list is not a safe replacement for a broader active catalog.
 
+<details>
+<summary>Catalog file format and entry identity</summary>
+
 The catalog image contains `/image-digests` and `/descriptions.yaml`.
 Each digest line uses `registry/repository:version@sha256:digest` syntax.
 The custom entry's repository identity is `talos/gpu-unlock`.
 Omni reads this catalog through its configured factory and accepts the cataloged namespaced entry.
 See the pinned [configuration source](https://github.com/siderolabs/image-factory/blob/45d147aba6b28d66d83a6229f21104d28ddb44a8/docs/configuration.md).
+
+</details>
 
 ### Construct the catalog
 
@@ -46,7 +59,7 @@ Use your own built extension digest and matching repository identity when publis
 The catalog contents are data, not an executable GPU module for the factory host.
 Mirror each selected extension, the core components, and their signature metadata into the backend paths before promotion.
 
-## Private services
+## 2. Configure the private service boundary
 
 [registry-compose.yaml](../examples/registry-compose.yaml) keeps the registry on `127.0.0.1:5000` with TLS and htpasswd authentication.
 Use persistent storage and a separately managed Compose project.
@@ -72,13 +85,16 @@ Configure the registry certificate with the actual local client name in its SANs
 Store credentials outside the repository. Use `docker login --password-stdin` or your credential helper.
 These placeholders intentionally do not supply a credential or certificate.
 
-## Authenticated TLS proxy patch
+## 3. Build the authenticated TLS proxy patch
 
 The original native OCI proxy stripped caller Authorization headers, then contacted the private backend anonymously.
 Installer downloads therefore failed even though the factory could build or locate the image.
 The patch resolves backend credentials with the registry keychain and creates an authenticated backend transport.
 It requests only the repository pull scope and preserves the configured CA trust.
 It does not forward a frontend client's token to the backend.
+
+<details>
+<summary>amd64 GPU artifacts and stock arm64 separation</summary>
 
 The same patch skips unsupported platforms while building an OCI index.
 A GPU schematic remains amd64-only; it never silently drops GPU Unlock from an arm64 build.
@@ -87,6 +103,8 @@ The factory reads asset files from the imager image rather than executing its am
 The pinned imager contains both amd64 and arm64 Talos asset trees.
 Our custom image replaces only the amd64 initramfs; stock arm64 kernel and initramfs assets remain unchanged.
 The pinned unsupported arm64 GPU request returned HTTP 500; it did not return a stock image.
+
+</details>
 
 Build locally with:
 
@@ -104,7 +122,7 @@ Cross-compile the arm64 service binary on the desktop. Do not compile it on the 
 Prebuild amd64 Talos installers locally and populate the signed cache before promoting the service.
 On-demand factory cache misses can still perform assembly; do not promise zero CPU work on the service host.
 
-## Signing and publication
+## 4. Verify signatures and publish
 
 Keep `containerSignature.disabled: false`.
 Verify official inputs with Sidero's keyless identity and issuer policy, including transparency-log evidence.
@@ -135,16 +153,7 @@ Review redistribution rights before publishing firmware-containing images beyond
 The signing example in [sign-private.sh](../scripts/sign-private.sh) preserves the tested local-key workflow.
 Its local signatures omit a public transparency service by design; official upstream verification is a separate policy.
 
-## Backup and removal
-
-Back up registry data, auth, TLS files, signing keys, and factory configuration together.
-Use a consistent stopped-service backup during an approved registry maintenance window.
-Test restoration into a different directory and loopback port before replacing the active registry.
-Stop or remove only the separate registry/factory Compose projects.
-Keep persistent data and preserved installers unless a separate retention decision authorizes deletion.
-Never use `docker system prune` as an integration cleanup step.
-
-## Operator-owned service lifecycle
+## 5. Operate and recover the separate services
 
 Use these Compose commands only for a separately planned service installation, not to modify an existing management deployment:
 
@@ -159,6 +168,15 @@ Provide `REGISTRY_DIR`, `REGISTRY_PORT=5000`, and `REGISTRY_HTTP_SECRET` outside
 Provide `FACTORY_DIR` and a reviewed `FACTORY_IMAGE` for the factory Compose project.
 Prepare TLS, htpasswd, backend credentials, CA trust, cache keys, and signed inputs before starting a listener.
 Compose configuration validation is not a deployed TLS or signature test.
+
+### Back up and restore
+
+Back up registry data, auth, TLS files, signing keys, and factory configuration together.
+Use a consistent stopped-service backup during an approved registry maintenance window.
+Test restoration into a different directory and loopback port before replacing the active registry.
+Stop or remove only the separate registry/factory Compose projects.
+Keep persistent data and preserved installers unless a separate retention decision authorizes deletion.
+Never use `docker system prune` as an integration cleanup step.
 
 For an approved registry backup window:
 
@@ -182,3 +200,7 @@ No removal or backup command above ran during documentation finalization.
 Treat published input tags and catalog contents as immutable.
 A reviewed rebuild needs a distinct repository/cache scope and verification of resolved input and output digests.
 Do not assume a mutable catalog tag forces cached installers to rebuild.
+
+---
+
+[Guide home](../README.md) · **Next — 2 minutes:** [open the Omni desired-versus-running check](07-omni.md).
