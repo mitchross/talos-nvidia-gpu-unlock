@@ -1,2 +1,5 @@
 # Patch context must remain byte-exact.
 patches/*.patch -whitespace
+
+# Preserve the exact HTML bytes checked by Archify.
+diagrams/archify/*.html -whitespace linguist-generated=true
