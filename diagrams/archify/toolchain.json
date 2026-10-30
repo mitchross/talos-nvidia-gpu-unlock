@@ -5,5 +5,11 @@
   "skill_path": "archify/SKILL.md",
   "source_evidence_revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
   "source_link_mode": "local-only",
-  "reason": "The pinned Archify source-card verifier does not support Gitea web links."
+  "reason": "The pinned Archify source-card verifier does not support Gitea web links.",
+  "source_evidence_revisions": {
+    "build": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+    "boot": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+    "factory": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+    "proxmox-boot": "fe6feb6cfa704cd2a2661fef61c93d1bae879216"
+  }
 }

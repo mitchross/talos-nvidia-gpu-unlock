@@ -7,7 +7,7 @@ out=${2:?Use a new absolute output directory}
 [[ "$(git -C "$archify" rev-parse HEAD)" = 208acba8d412335185b2056fedf54b3405df43fb ]] || { echo 'Archify does not match the toolchain pin.' >&2; exit 2; }
 mkdir -p "$out"
 cd "$repo"
-for name in build boot factory; do
+for name in build boot factory proxmox-boot; do
   type=workflow
   [[ "$name" != factory ]] || type=architecture
   node "$archify/archify/bin/archify.mjs" finalize "$type" \

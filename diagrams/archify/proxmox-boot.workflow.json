@@ -1,0 +1,463 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Proxmox to vLLM: recorded diagnostic boot order",
+    "locale": "en",
+    "output": "diagrams/archify/proxmox-boot.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "revision": "fe6feb6cfa704cd2a2661fef61c93d1bae879216",
+      "link_mode": "local-only"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Boot and workload stages"
+        },
+        "database": {
+          "label": "Boot files and GPU state"
+        },
+        "security": {
+          "label": "Passthrough and boot gates"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "host",
+      "label": "Proxmox host; physical PCI devices"
+    },
+    {
+      "id": "uefi",
+      "label": "Guest firmware; normal EFI entry"
+    },
+    {
+      "id": "early",
+      "label": "Talos early initramfs; no NVIDIA bound"
+    },
+    {
+      "id": "runtime",
+      "label": "Talos services; NVIDIA driver handoff"
+    },
+    {
+      "id": "allocation",
+      "label": "Kubernetes; GPU device plugin and container runtime"
+    },
+    {
+      "id": "inference",
+      "label": "vLLM workload on the same GPU worker"
+    },
+    {
+      "id": "state",
+      "label": "Retained GPU state and operator recovery",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "vfio",
+    "vm",
+    "ovmf",
+    "uki",
+    "mounts",
+    "unlock",
+    "fresh",
+    "machined",
+    "nvidia",
+    "kube",
+    "vllm"
+  ],
+  "nodes": [
+    {
+      "id": "vfio",
+      "lane": "host",
+      "col": 0,
+      "type": "security",
+      "label": "1. Host VFIO",
+      "sublabel": "IOMMU + GPU functions",
+      "sources": [
+        {
+          "path": "docs/08-proxmox.md",
+          "line": 16,
+          "end_line": 23
+        }
+      ]
+    },
+    {
+      "id": "vm",
+      "lane": "host",
+      "col": 1,
+      "type": "backend",
+      "label": "2. GPU worker VM",
+      "sublabel": "PCI passthrough + serial",
+      "sources": [
+        {
+          "path": "docs/08-proxmox.md",
+          "line": 21,
+          "end_line": 30
+        }
+      ]
+    },
+    {
+      "id": "ovmf",
+      "lane": "uefi",
+      "col": 1,
+      "type": "backend",
+      "label": "3. UEFI / OVMF",
+      "sublabel": "select normal EFI entry",
+      "sources": [
+        {
+          "path": "docs/08-proxmox.md",
+          "line": 21,
+          "end_line": 23
+        },
+        {
+          "path": "docs/09-installation.md",
+          "line": 39,
+          "end_line": 49
+        }
+      ]
+    },
+    {
+      "id": "uki",
+      "lane": "uefi",
+      "col": 2,
+      "type": "database",
+      "label": "4. Diagnostic UKI",
+      "sublabel": "stock Linux + early init",
+      "sources": [
+        {
+          "path": "docs/05-early-boot.md",
+          "line": 17,
+          "end_line": 27
+        },
+        {
+          "path": "scripts/patch-reference-uki.py",
+          "line": 17,
+          "end_line": 38
+        }
+      ]
+    },
+    {
+      "id": "mounts",
+      "lane": "early",
+      "col": 2,
+      "type": "database",
+      "label": "5. Early mounts",
+      "sublabel": "rootfs + early firmware",
+      "sources": [
+        {
+          "path": "docs/05-early-boot.md",
+          "line": 17,
+          "end_line": 27
+        }
+      ]
+    },
+    {
+      "id": "unlock",
+      "lane": "early",
+      "col": 3,
+      "type": "security",
+      "label": "6. Unlock barrier",
+      "sublabel": "check; insert; verify",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 148,
+          "end_line": 191
+        },
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 200,
+          "end_line": 243
+        }
+      ]
+    },
+    {
+      "id": "fresh",
+      "lane": "early",
+      "col": 4,
+      "type": "security",
+      "label": "7. Fresh success?",
+      "sublabel": "every selected PCI target",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 289,
+          "end_line": 303
+        },
+        {
+          "path": "evidence/verified-case.json",
+          "line": 19,
+          "end_line": 22
+        }
+      ]
+    },
+    {
+      "id": "machined",
+      "lane": "runtime",
+      "col": 4,
+      "type": "backend",
+      "label": "8. Start machined",
+      "sublabel": "switch_root after success",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 11,
+          "end_line": 21
+        },
+        {
+          "path": "evidence/verified-case.json",
+          "line": 41,
+          "end_line": 45
+        }
+      ]
+    },
+    {
+      "id": "nvidia",
+      "lane": "runtime",
+      "col": 5,
+      "type": "backend",
+      "label": "9. NVIDIA init",
+      "sublabel": "both UUIDs visible",
+      "sources": [
+        {
+          "path": "evidence/verified-case.json",
+          "line": 23,
+          "end_line": 45
+        },
+        {
+          "path": "docs/10-verification.md",
+          "line": 49,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "kube",
+      "lane": "allocation",
+      "col": 5,
+      "type": "backend",
+      "label": "10. GPU allocation",
+      "sublabel": "device plugin + runtime",
+      "sources": [
+        {
+          "path": "docs/04-talos-extension.md",
+          "line": 32,
+          "end_line": 56
+        },
+        {
+          "path": "docs/10-verification.md",
+          "line": 49,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "vllm",
+      "lane": "inference",
+      "col": 5,
+      "type": "backend",
+      "label": "11. Qwen inference",
+      "sublabel": "vLLM TP2 uses both GPUs",
+      "sources": [
+        {
+          "path": "docs/architecture.md",
+          "line": 94,
+          "end_line": 103
+        },
+        {
+          "path": "docs/10-verification.md",
+          "line": 104,
+          "end_line": 113
+        },
+        {
+          "path": "evidence/verified-case.json",
+          "line": 67,
+          "end_line": 76
+        }
+      ]
+    },
+    {
+      "id": "retained",
+      "lane": "state",
+      "col": 3,
+      "type": "database",
+      "label": "GPU B retained",
+      "sublabel": "prior verified unlock",
+      "sources": [
+        {
+          "path": "evidence/verified-case.json",
+          "line": 19,
+          "end_line": 38
+        },
+        {
+          "path": "evidence/verified-case.json",
+          "line": 57,
+          "end_line": 64
+        }
+      ]
+    },
+    {
+      "id": "failed",
+      "lane": "state",
+      "col": 5,
+      "type": "security",
+      "label": "Stop normal boot",
+      "sublabel": "keep serial / kernel log",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 15,
+          "end_line": 17
+        },
+        {
+          "path": "docs/08-proxmox.md",
+          "line": 55,
+          "end_line": 68
+        }
+      ]
+    },
+    {
+      "id": "stock",
+      "lane": "state",
+      "col": 4,
+      "type": "database",
+      "label": "Stock recovery",
+      "sublabel": "operator selects; no wipe",
+      "sources": [
+        {
+          "path": "docs/12-rollback.md",
+          "line": 11,
+          "end_line": 31
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "vfio-vm",
+      "from": "vfio",
+      "to": "vm",
+      "variant": "default"
+    },
+    {
+      "id": "vm-firmware",
+      "from": "vm",
+      "to": "ovmf",
+      "variant": "default"
+    },
+    {
+      "id": "firmware-selects",
+      "from": "ovmf",
+      "to": "uki",
+      "variant": "default"
+    },
+    {
+      "id": "kernel-init",
+      "from": "uki",
+      "to": "mounts",
+      "variant": "default"
+    },
+    {
+      "id": "mounts-barrier",
+      "from": "mounts",
+      "to": "unlock",
+      "variant": "default"
+    },
+    {
+      "id": "insert-records",
+      "from": "unlock",
+      "to": "fresh",
+      "variant": "default"
+    },
+    {
+      "id": "fresh-permits",
+      "from": "fresh",
+      "to": "machined",
+      "variant": "emphasis",
+      "label": "all pass"
+    },
+    {
+      "id": "machined-nvidia",
+      "from": "machined",
+      "to": "nvidia",
+      "variant": "default"
+    },
+    {
+      "id": "nvidia-runtime",
+      "from": "nvidia",
+      "to": "kube",
+      "variant": "default"
+    },
+    {
+      "id": "allocated-workload",
+      "from": "kube",
+      "to": "vllm",
+      "variant": "default"
+    },
+    {
+      "id": "retained-handoff",
+      "from": "retained",
+      "to": "nvidia",
+      "variant": "default",
+      "label": "retained",
+      "role": "branch"
+    },
+    {
+      "id": "barrier-error",
+      "from": "unlock",
+      "to": "failed",
+      "variant": "security",
+      "label": "check / insert error",
+      "role": "error"
+    },
+    {
+      "id": "missing-record",
+      "from": "fresh",
+      "to": "failed",
+      "variant": "security",
+      "label": "missing success",
+      "role": "error"
+    },
+    {
+      "id": "operator-stock",
+      "from": "failed",
+      "to": "stock",
+      "variant": "security",
+      "label": "console choice",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Read the numbered boot path",
+      "items": [
+        "Host VFIO attaches the GPU functions; guest NVIDIA starts later.",
+        "Early firmware is visible before GPU Unlock runs.",
+        "NVIDIA starts only after the selected-target barrier succeeds."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Recorded two-GPU state",
+      "items": [
+        "This diagnostic loader targets GPU A only.",
+        "GPU B retains its preceding verified unlock; it is not unlocked again here.",
+        "A warm VM restart does not guarantee fresh GPU hardware state."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Management and recovery guards",
+      "items": [
+        "The Omni machine lock stays enabled; it is not a boot stage.",
+        "EALREADY is never fresh success; do not add blind retries.",
+        "Quiesce all affected storage clients before an approved shutdown."
+      ]
+    }
+  ]
+}

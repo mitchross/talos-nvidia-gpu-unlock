@@ -85,6 +85,9 @@ flowchart LR
 
 ## 4. Passthrough to vLLM
 
+[Explore the complete numbered Proxmox-to-vLLM Archify flow](../diagrams/archify/README.md).
+The view includes UEFI, early firmware mounts, the unlock barrier, driver handoff, and the separate retained-state input.
+
 ![Passthrough to vLLM](../diagrams/passthrough.svg)
 
 <details>

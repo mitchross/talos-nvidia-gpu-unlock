@@ -1,5 +1,5 @@
 {
-  "verified_utc": "2026-10-30T02:45:47.442714+00:00",
+  "verified_utc": "2026-10-30T03:07:32.341203+00:00",
   "scope": "Documentation artifacts only; no live boot or infrastructure checks",
   "screenshots_and_full_receipts": "Preserved privately; absolute host paths excluded from this bundle",
   "diagrams": [
@@ -59,8 +59,27 @@
         "2048x1320 dark"
       ],
       "preview_source": "Archify Viewer canonical PNG export"
+    },
+    {
+      "diagram": "proxmox-boot",
+      "type": "workflow",
+      "source_sha256": "e97cd443a4403d73dfb336930ec7d4ac6ffdd3afd3f926fd93085161365d9d1e",
+      "html_sha256": "e4ce10a5ea6b5bd358d07fb98085fb2c9f0f2b160863fc0b9d94ae6eba0f38a0",
+      "preview_sha256": "ddc1f04862e9d996b4a8baa7b11642f4c3c55b5308e77a797c074a743bd2ff70",
+      "gates": {
+        "validate": "pass",
+        "deliver": "pass",
+        "check": "pass",
+        "browser-check": "pass"
+      },
+      "visual_review": "passed",
+      "inspected_viewports": [
+        "1440x900 light",
+        "2048x1320 dark"
+      ],
+      "preview_source": "Archify Viewer canonical PNG export; full flow visually inspected"
     }
   ],
   "rebuild_wrapper_tested": true,
-  "rebuild_wrapper_scope": "All three interactive diagrams regenerated; artifact and browser gates passed."
+  "rebuild_wrapper_scope": "All four diagrams regenerated; HTML bytes match published files and artifact/browser gates passed."
 }

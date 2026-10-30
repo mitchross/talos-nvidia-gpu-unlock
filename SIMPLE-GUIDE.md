@@ -148,6 +148,8 @@ That setting cannot fix assets that appear only later.
 ## 4. Review the boot procedure before deployment
 
 **This remains the machine-specific part.**
+
+**Using Proxmox?** Follow the [full Proxmox → Talos → vLLM boot order](docs/08-proxmox.md) before planning deployment.
 We booted the corrected UKI through Proxmox with stock recovery preserved.
 The correction fixed early firmware lookup.
 
