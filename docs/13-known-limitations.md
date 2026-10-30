@@ -26,10 +26,12 @@ Read `evidence/verified-case.json` and `evidence/build-validation.json` for the 
 The active diagnostic loader targets GPU A only.
 GPU B retains a successful unlock from a preceding boot.
 The module instance's managed-card lifecycle therefore does not cover both cards symmetrically.
-A simultaneous dual-target image and repeatable cold/warm restart are not established by this session.
+A dual-target installer image is now validated offline.
+A simultaneous dual-target boot and repeatable cold/warm restart remain unvalidated.
 
 The desired Omni schematic still refers to the older candidate family.
-The corrected diagnostic UKI has not become its managed OCI installer.
+The corrected UKI is now embedded in offline-validated local installer archives.
+Those archives have not been booted, published into the live catalog, or selected through Omni.
 Keep the machine locked. Do not enable automatic updates or remove the lock for Kubernetes scheduling.
 
 No fresh Talos installation, bare-metal boot, different GPU model, driver family, or kernel version was validated.
@@ -43,7 +45,7 @@ The native private-backend compatibility patch is local integration code, not a 
 
 ## 3. Review the production acceptance gates
 
-1. Publish a corrected, immutable, signed installer that includes the proven early path.
+1. Publish and sign a reviewed digest of the corrected, offline-validated installer.
 2. Reconcile Omni's desired artifact with that exact boot image.
 3. Define eligible GPU state and safe handling of selected retained cards.
 4. Test dual-card cold start, warm restart, NVIDIA handoff, and recovery.

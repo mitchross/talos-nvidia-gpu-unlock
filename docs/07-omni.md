@@ -43,7 +43,8 @@ Do not change another machine's schematic or the primary factory endpoint to rep
 ## 3. Keep the lock across the management gap
 
 The live desired schematic still points to the pre-correction candidate family.
-The running corrected diagnostic UKI has not become a replacement, verified OCI installer in the managed lifecycle.
+The local assembler now embeds the corrected UKI in a validated installer archive.
+That new archive has not been published or promoted into the live Omni lifecycle.
 Its kernel arguments include the firmware path and serial diagnostics absent from that original schematic.
 The active loader targets GPU A only. GPU B retains its previous verified state.
 Automatic updates or blind warm reboots can therefore lose availability or hit the closed barrier.

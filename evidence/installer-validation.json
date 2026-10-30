@@ -1,0 +1,84 @@
+{
+  "verified_utc": "2026-10-30T22:00:22.334938+00:00",
+  "scope": "Native local installer builds and offline inspection; no boot or installation performed",
+  "targets_are_explicit_and_configurable": true,
+  "historical_reference_replay_preserved": true,
+  "unit_tests_passed": 6,
+  "negative_real_uki_target_check_passed": true,
+  "source_kernel_loader_module_and_firmware_reused": true,
+  "hardware_boot_tested": false,
+  "fresh_install_validated": false,
+  "production_state_modified": false,
+  "registry_publication_performed": false,
+  "images": [
+    {
+      "installer_archive_sha256": "3bd20930ff7e56b25001de79eb4d130562f781a2376010b7d4dd072bcf4c7782",
+      "installer_manifest_digest": "sha256:64ed7841c341d67da83685abf0823edb51348ab214e27588ac9ce7947bcbd780",
+      "architecture": "amd64",
+      "os": "linux",
+      "embedded_uki_path": "usr/install/amd64/vmlinuz.efi",
+      "embedded_uki_sha256": "4ff4113443933d3fd7b0ee6fd9b278a9de1cb37177150839917d3e4e8b2674ed",
+      "gpu_targets": [
+        "0000:02:00.0"
+      ],
+      "normal_cmdline": "talos.platform=nocloud console=ttyS0,115200n8 net.ifnames=0 slab_nomerge pti=on consoleblank=0 printk.devkmsg=on selinux=1 proc_mem.force_override=never module.sig_enforce=0 panic=0 firmware_class.path=/usr/lib/firmware earlycon=uart8250,io,0x3f8,115200n8 ignore_loglevel loglevel=8 gpu_unlock.targets=0000:02:00.0",
+      "archive_validated": true,
+      "embedded_uki_validated": true,
+      "requires_separate_uki_patch": false,
+      "fresh_install_validated": false,
+      "boot_tested": false,
+      "stock_kernel_sha256": "02c08d4c5ee771ed94e2602ce1721aa24fc0d95f2244ec75a29e0456e8ca8985",
+      "initramfs_sha256": "e7f340deb1900b5be01fe122af621273b227f67e2c237a30509e3f2429d20c2e",
+      "early_loader_sha256": "81a8edcff71aa5627718d1018c965e92b84102496fc18fcee40d685ff6f32171",
+      "module_sha256": "8c983c06aeebe36e3690a0c6e7872d5b454adb63abb7ca6c7315c7c0bd992924",
+      "module_vermagic": "6.18.58-talos SMP preempt mod_unload modversions",
+      "firmware_bin_count": 16,
+      "firmware_and_license_hashes_match": true,
+      "official_extensions": {
+        "iscsi-tools": "v0.2.0",
+        "nvidia-container-toolkit-production": "595.91.07-v1.19.1",
+        "util-linux-tools": "2.42.2",
+        "nonfree-kmod-nvidia-production": "595.91.07-v1.14.5",
+        "gpu-unlock": "2.0.0-v1.14.5-local",
+        "modules.dep": "6.18.58-talos"
+      },
+      "normal_profile_inherits_common": true,
+      "reset_profile_remains_destructive": true
+    },
+    {
+      "installer_archive_sha256": "644aabbb648e874d6e729227f8fd9023839d91995b451083499653b6d514e9d1",
+      "installer_manifest_digest": "sha256:7c722c80715015e306615045e90b1aba3797944d3e452fe967328239442f7cf4",
+      "architecture": "amd64",
+      "os": "linux",
+      "embedded_uki_path": "usr/install/amd64/vmlinuz.efi",
+      "embedded_uki_sha256": "6087ba95dc70602bb6d511bc34d178875098cb3fe6166588ae95ecda3a798785",
+      "gpu_targets": [
+        "0000:01:00.0",
+        "0000:02:00.0"
+      ],
+      "normal_cmdline": "talos.platform=nocloud console=ttyS0,115200n8 net.ifnames=0 slab_nomerge pti=on consoleblank=0 printk.devkmsg=on selinux=1 proc_mem.force_override=never module.sig_enforce=0 panic=0 firmware_class.path=/usr/lib/firmware earlycon=uart8250,io,0x3f8,115200n8 ignore_loglevel loglevel=8 gpu_unlock.targets=0000:01:00.0,0000:02:00.0",
+      "archive_validated": true,
+      "embedded_uki_validated": true,
+      "requires_separate_uki_patch": false,
+      "fresh_install_validated": false,
+      "boot_tested": false,
+      "stock_kernel_sha256": "02c08d4c5ee771ed94e2602ce1721aa24fc0d95f2244ec75a29e0456e8ca8985",
+      "initramfs_sha256": "e7f340deb1900b5be01fe122af621273b227f67e2c237a30509e3f2429d20c2e",
+      "early_loader_sha256": "81a8edcff71aa5627718d1018c965e92b84102496fc18fcee40d685ff6f32171",
+      "module_sha256": "8c983c06aeebe36e3690a0c6e7872d5b454adb63abb7ca6c7315c7c0bd992924",
+      "module_vermagic": "6.18.58-talos SMP preempt mod_unload modversions",
+      "firmware_bin_count": 16,
+      "firmware_and_license_hashes_match": true,
+      "official_extensions": {
+        "iscsi-tools": "v0.2.0",
+        "nvidia-container-toolkit-production": "595.91.07-v1.19.1",
+        "util-linux-tools": "2.42.2",
+        "nonfree-kmod-nvidia-production": "595.91.07-v1.14.5",
+        "gpu-unlock": "2.0.0-v1.14.5-local",
+        "modules.dep": "6.18.58-talos"
+      },
+      "normal_profile_inherits_common": true,
+      "reset_profile_remains_destructive": true
+    }
+  ]
+}

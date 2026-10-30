@@ -11,3 +11,5 @@ __pycache__/
 *.bin
 *.efi
 *.docker.tar
+
+.archify/

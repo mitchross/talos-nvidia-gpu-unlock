@@ -1,6 +1,6 @@
 # GPU Unlock on Talos Linux
 
-**Start with [prerequisites](docs/01-prerequisites.md). Allow 2 minutes to check whether this guide fits your system.**
+**Start with the [simple guide](SIMPLE-GUIDE.md). Allow 5 minutes for the overview, then use the detailed chapters below.**
 
 This guide reconstructs Zagitta GPU Unlock 2.0 on Talos v1.14.5.
 Keep the stock Talos kernel. Build a matching external module.
@@ -9,7 +9,7 @@ Run GPU Unlock in early initramfs, before NVIDIA binds the selected GPU.
 | Working now | Still unfinished |
 |---|---|
 | Two RTX 3090s serve Qwen through vLLM | Repeatable automatic dual-card cold/warm boot |
-| Early loader requires fresh per-target success | Corrected diagnostic UKI as an Omni-managed installer |
+| Installer now embeds corrected UKI and explicit targets; offline validation passes | Publication and reviewed Omni rollout |
 | Module, firmware, and boot evidence preserved | Fresh-install and bare-metal validation |
 
 > **Deployment boundary:** the current diagnostic boot initializes one card.
@@ -52,7 +52,10 @@ Time estimates cover reading or preparation, unless a page states otherwise.
 
 ## 3. See the build path
 
-![Source pins become a matching module, extension, early imager, and diagnostic UKI.](diagrams/build.svg)
+![Source pins become a matching module, extension, early imager, and diagnostic UKI.](diagrams/archify/build.png)
+
+This map records the earlier sidecar workflow. The current assembler embeds the corrected UKI directly in its installer.
+[Explore the optional historical Archify diagrams](diagrams/archify/README.md).
 
 **Done when:** local checks pass, recovery is preserved, and the remaining boot limitations are understood.
 Local build success does not establish hardware boot success.
@@ -60,6 +63,7 @@ Local build success does not establish hardware boot success.
 <details>
 <summary>Open the local build command sequence</summary>
 
+Set `GPU_TARGETS` to an explicit guest PCI address or comma-separated list before running this build.
 Run these commands from the repository root on an amd64 Linux builder.
 Provide Docker, Go toolchain support, Python, PyYAML, kmod, zstd, patch, and GNU binutils.
 Read chapters 01–05 before starting the full build.
@@ -73,11 +77,11 @@ python3 scripts/package-extension.py \
   "$PWD/work/extension" --source "$PWD/work/sources/gpu-unlock"
 bash scripts/build-early-imager.sh "$PWD/work" "$PWD/work/early"
 python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
-  --extension-tar "$PWD/work/extension/extension.rootfs.tar"
+  --extension-tar "$PWD/work/extension/extension.rootfs.tar" --targets "$GPU_TARGETS"
 ```
 
-The output includes a base installer and a corrected `diagnostic.efi` sidecar.
-The script does **not** publish that sidecar as an Omni-managed installer.
+The installer archive now contains the corrected UKI, including the early firmware path and your explicit GPU targets.
+The script validates that embedded UKI and does not publish or deploy the image.
 Read installation and rollback before any live boot change.
 Do not run upstream `make install` on the builder.
 
@@ -87,7 +91,8 @@ Do not run upstream `make install` on the builder.
 
 The original full kernel/module build, extension packaging, early-loader boot, firmware access, and diagnostic recovery succeeded on existing hardware.
 The original reference UKI was reproduced byte-for-byte from preserved inputs.
-Read [build-validation.json](evidence/build-validation.json) for each portable script's validation scope.
+Read [build-validation.json](evidence/build-validation.json) for the original validation scope.
+Read [installer-validation.json](evidence/installer-validation.json) for the new native installer builds.
 
 > **Not validated:** a fresh installation or repeatable managed dual-target restart.
 > Preserve the working diagnostic image while testing a new output.
@@ -107,7 +112,8 @@ Read [build-validation.json](evidence/build-validation.json) for each portable s
 | Observed Omni | v1.12.4 |
 
 Read [sources.lock.json](sources.lock.json) for tool images, hashes, official extensions, and reference artifact digests.
-The published OCI candidate predates the diagnostic firmware-path correction.
+The historical published OCI candidate predates the diagnostic firmware-path correction.
+New local archives embed the correction; they have not been published or booted.
 Its digest must not be substituted for the working diagnostic UKI hash.
 
 

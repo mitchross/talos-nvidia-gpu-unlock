@@ -11,6 +11,20 @@
 Bare-metal Talos users can skip this chapter.
 The early-loader, firmware, signature, and retained-state requirements still apply to their hardware.
 
+![Full recorded Proxmox-to-vLLM diagnostic boot flow with the early GPU Unlock barrier and stock recovery.](../diagrams/archify/proxmox-boot.png)
+
+[Open the interactive full boot flow](../diagrams/archify/proxmox-boot.html) after downloading the HTML to your computer.
+
+1. **Host:** IOMMU/VFIO → configured VM with GPU passthrough.
+2. **Firmware:** guest UEFI/OVMF → normal diagnostic UKI.
+3. **Early Talos:** stock kernel → root/firmware mounts → GPU Unlock → fresh per-target success.
+4. **Handoff:** switch root → `machined` → NVIDIA → container runtime and device plugin.
+5. **Inference:** Kubernetes GPU allocation → vLLM TP2 on both verified GPUs.
+
+**Recorded-session boundary:** the loader initializes GPU A. GPU B retains its preceding verified unlock.
+The Omni lock stays enabled. The corrected UKI is not automatically deployed by the current managed candidate.
+The failure route stops normal boot and preserves stock recovery; it does not trigger an automatic reset.
+
 ## 1. Check passthrough prerequisites
 
 Enable platform IOMMU support and inspect actual isolation groups.

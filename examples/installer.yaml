@@ -16,4 +16,8 @@ customization:
   - module.sig_enforce=0
   - -panic
   - panic=0
-  - gpu_unlock.targets=0000:01:00.0
+  - firmware_class.path=/usr/lib/firmware
+  - console=ttyS0,115200n8
+  - earlycon=uart8250,io,0x3f8,115200n8
+  - ignore_loglevel
+  - loglevel=8

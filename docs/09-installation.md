@@ -9,16 +9,15 @@
 ## 1. Build without changing a running machine
 
 Complete chapters 01–05 in a new local work directory.
-Preserve the module, symvers, firmware hashes, build logs, installer archive, diagnostic UKI, and stock recovery image.
+Preserve the module, symvers, firmware hashes, build logs, installer archive, validation report, and stock recovery image.
 Run the offline verification commands before planning maintenance.
 Do not run scripts from a directory containing an existing reference output.
 
 ```bash
 python3 scripts/verify-firmware.py work/assets
 modinfo -F vermagic work/kernel/module/gpu_unlock.ko
-sha256sum work/installer/diagnostic.efi
-python3 scripts/verify-uki.py work/installer/diagnostic.efi work/verify \
-  --module work/kernel/module/gpu_unlock.ko
+python3 scripts/verify-installer.py work/installer/installer-amd64.tar work/verify-installer \
+  --targets "$GPU_TARGETS" --module work/kernel/module/gpu_unlock.ko
 ```
 
 > **Stop if:** the selected normal profile contains a wipe argument or conflicting signature settings.
@@ -47,7 +46,21 @@ The original recovery ESP hash is recorded in `sources.lock.json`.
 Another installation will have different image contents and partition identifiers.
 Do not use this case's whole-disk hash or geometry as your own write target.
 
-## 3. Plan your platform-specific boot
+## 3. Use the deployable installer on a reviewed UEFI test node
+
+The current installer archive includes the corrected UKI; manual EFI copying is no longer the build workflow.
+Publish the archive through an authenticated registry reachable by the node.
+Pin the published image digest and use Talos's normal installer/upgrade mechanism during approved maintenance.
+The [simple guide](../SIMPLE-GUIDE.md) provides the exact publication and standalone-node upgrade commands.
+Fresh provisioning uses `machine.install.image`; a fresh installation has not been validated.
+
+The pinned Talos sd-boot implementation copies `BootAssets.UKIPath` directly into the EFI Linux directory.
+This offline source check supports the packaging path; it does not replace a hardware boot test.
+The tested image profile remains amd64 `nocloud`, UEFI, and unsigned. BIOS and bare-metal variants remain unvalidated.
+For Omni-managed machines, retain the machine lock and review catalog/signature/desired-image changes separately.
+
+### Historical diagnostic staging
+
 
 **Tested existing-VM procedure:** stop storage writers, stop the VM, lock it against concurrent host edits, and copy a corrected UKI into a preserved EFI filesystem.
 The guarded writer backed up EFI and verified unchanged GPT, META, STATE, and data-disk identities.
@@ -68,7 +81,7 @@ mdir -i work/test-esp.img ::/EFI/Linux
 The following is a **machine-specific adaptation**, not a validated fresh-install command:
 
 ```bash
-mcopy -i work/test-esp.img work/installer/diagnostic.efi ::/EFI/Linux/YOUR_TEST_ENTRY.efi
+mcopy -i work/test-esp.img YOUR_PRESERVED_DIAGNOSTIC_EFI ::/EFI/Linux/YOUR_TEST_ENTRY.efi
 fsck.fat -n work/test-esp.img
 ```
 

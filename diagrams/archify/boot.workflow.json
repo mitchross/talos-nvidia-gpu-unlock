@@ -1,0 +1,305 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Selected-target early boot and recovery",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "diagrams/archify/boot.html",
+    "repository": {
+      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+      "link_mode": "local-only"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Boot stages"
+        },
+        "database": {
+          "label": "Files and recovery"
+        },
+        "security": {
+          "label": "Boot gates"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "kernel",
+      "label": "Early kernel and mounts"
+    },
+    {
+      "id": "barrier",
+      "label": "Synchronous GPU Unlock barrier"
+    },
+    {
+      "id": "normal",
+      "label": "Allowed normal boot"
+    },
+    {
+      "id": "recovery",
+      "label": "Failure and operator recovery",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "kernel",
+    "mounts",
+    "checks",
+    "unlock",
+    "success",
+    "machined",
+    "nvidia"
+  ],
+  "nodes": [
+    {
+      "id": "kernel",
+      "lane": "kernel",
+      "col": 0,
+      "type": "backend",
+      "label": "Stock Talos kernel",
+      "sublabel": "diagnostic UKI selected",
+      "sources": [
+        {
+          "path": "docs/05-early-boot.md",
+          "line": 15,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "mounts",
+      "lane": "kernel",
+      "col": 1,
+      "type": "database",
+      "label": "Early mounts",
+      "sublabel": "module + firmware visible",
+      "sources": [
+        {
+          "path": "docs/05-early-boot.md",
+          "line": 20,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "checks",
+      "lane": "barrier",
+      "col": 2,
+      "type": "security",
+      "label": "Preconditions",
+      "sublabel": "sig N; no bound driver",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 148,
+          "end_line": 185
+        },
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 200,
+          "end_line": 220
+        }
+      ]
+    },
+    {
+      "id": "unlock",
+      "lane": "barrier",
+      "col": 3,
+      "type": "backend",
+      "label": "Insert module",
+      "sublabel": "finit_module + targets",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 222,
+          "end_line": 238
+        }
+      ]
+    },
+    {
+      "id": "success",
+      "lane": "barrier",
+      "col": 4,
+      "type": "security",
+      "label": "Fresh success?",
+      "sublabel": "every selected PCI target",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 239,
+          "end_line": 243
+        },
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 289,
+          "end_line": 303
+        }
+      ]
+    },
+    {
+      "id": "machined",
+      "lane": "normal",
+      "col": 4,
+      "type": "backend",
+      "label": "Start machined",
+      "sublabel": "switch to real root",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 11,
+          "end_line": 21
+        },
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 186,
+          "end_line": 191
+        }
+      ]
+    },
+    {
+      "id": "nvidia",
+      "lane": "normal",
+      "col": 5,
+      "type": "backend",
+      "label": "NVIDIA handoff",
+      "sublabel": "then GPU workloads",
+      "sources": [
+        {
+          "path": "evidence/verified-case.json",
+          "line": 41,
+          "end_line": 45
+        }
+      ]
+    },
+    {
+      "id": "failed",
+      "lane": "recovery",
+      "col": 4,
+      "type": "security",
+      "label": "Stop normal boot",
+      "sublabel": "keep first console error",
+      "sources": [
+        {
+          "path": "patches/talos-early-loader.patch",
+          "line": 15,
+          "end_line": 17
+        },
+        {
+          "path": "docs/05-early-boot.md",
+          "line": 71,
+          "end_line": 80
+        }
+      ]
+    },
+    {
+      "id": "stock",
+      "lane": "recovery",
+      "col": 5,
+      "type": "database",
+      "label": "Stock recovery",
+      "sublabel": "preserve data; no wipe",
+      "sources": [
+        {
+          "path": "docs/12-rollback.md",
+          "line": 11,
+          "end_line": 39
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "boot-mounts",
+      "from": "kernel",
+      "to": "mounts",
+      "variant": "default"
+    },
+    {
+      "id": "mounts-check",
+      "from": "mounts",
+      "to": "checks",
+      "variant": "default"
+    },
+    {
+      "id": "eligible-insert",
+      "from": "checks",
+      "to": "unlock",
+      "variant": "default",
+      "label": "eligible"
+    },
+    {
+      "id": "insert-return",
+      "from": "unlock",
+      "to": "success",
+      "variant": "default"
+    },
+    {
+      "id": "allow-machined",
+      "from": "success",
+      "to": "machined",
+      "variant": "emphasis",
+      "label": "all pass"
+    },
+    {
+      "id": "nvidia-after",
+      "from": "machined",
+      "to": "nvidia",
+      "variant": "default"
+    },
+    {
+      "id": "reject-check",
+      "from": "checks",
+      "to": "failed",
+      "variant": "security",
+      "label": "reject",
+      "role": "error"
+    },
+    {
+      "id": "reject-insert",
+      "from": "unlock",
+      "to": "failed",
+      "variant": "security",
+      "label": "insert error",
+      "role": "error"
+    },
+    {
+      "id": "reject-success",
+      "from": "success",
+      "to": "failed",
+      "variant": "security",
+      "label": "missing record",
+      "role": "error"
+    },
+    {
+      "id": "operator-recovery",
+      "from": "failed",
+      "to": "stock",
+      "variant": "security",
+      "label": "console choice",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Current verified session",
+      "items": [
+        "The current loader targets GPU A only.",
+        "GPU B retains its preceding verified unlock.",
+        "A repeatable dual-target restart is not established."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Closed barrier",
+      "items": [
+        "EALREADY is not fresh success.",
+        "Quiesce storage clients before an approved shutdown.",
+        "No automatic reboot, retry, or host power cycle is implied."
+      ]
+    }
+  ]
+}

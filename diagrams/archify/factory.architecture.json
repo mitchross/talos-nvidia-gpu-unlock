@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Optional Factory and Omni image delivery",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "diagrams/archify/factory.html",
+    "repository": {
+      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "desktop",
+      "type": "backend",
+      "label": "amd64 builder",
+      "sublabel": "builds and signs locally",
+      "pos": [
+        350,
+        40
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 109,
+          "end_line": 123
+        },
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 143,
+          "end_line": 154
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "database",
+      "label": "Private registry",
+      "sublabel": "loopback 5000; TLS + auth",
+      "pos": [
+        350,
+        220
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "examples/registry-compose.yaml",
+          "line": 8,
+          "end_line": 23
+        }
+      ]
+    },
+    {
+      "id": "factory",
+      "type": "backend",
+      "label": "Image Factory",
+      "sublabel": "native HTTPS 8443",
+      "pos": [
+        350,
+        420
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "examples/image-factory.yaml",
+          "line": 1,
+          "end_line": 34
+        },
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 88,
+          "end_line": 105
+        }
+      ]
+    },
+    {
+      "id": "omni",
+      "type": "backend",
+      "label": "Omni",
+      "sublabel": "catalog + schematic intent",
+      "pos": [
+        40,
+        420
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 17,
+          "end_line": 40
+        },
+        {
+          "path": "docs/07-omni.md",
+          "line": 14,
+          "end_line": 29
+        }
+      ]
+    },
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Installer clients",
+      "sublabel": "provisioning downloads",
+      "pos": [
+        350,
+        640
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 68,
+          "end_line": 82
+        }
+      ]
+    },
+    {
+      "id": "gpu",
+      "type": "database",
+      "label": "GPU schematic",
+      "sublabel": "amd64 only",
+      "pos": [
+        680,
+        220
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 99,
+          "end_line": 105
+        }
+      ]
+    },
+    {
+      "id": "arm",
+      "type": "database",
+      "label": "Stock schematic",
+      "sublabel": "separate arm64 path",
+      "pos": [
+        680,
+        420
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/06-image-factory.md",
+          "line": 99,
+          "end_line": 105
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Independent arm64 Pi host; outside Kubernetes",
+      "wraps": [
+        "registry",
+        "factory",
+        "omni"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "publish-tunnel",
+      "from": "desktop",
+      "to": "registry",
+      "variant": "emphasis",
+      "label": "SSH + TLS"
+    },
+    {
+      "id": "omni-requests",
+      "from": "omni",
+      "to": "factory",
+      "variant": "default",
+      "label": "HTTPS 8443"
+    },
+    {
+      "id": "backend-pull",
+      "from": "factory",
+      "to": "registry",
+      "variant": "security",
+      "label": "auth + CA"
+    },
+    {
+      "id": "installer-download",
+      "from": "client",
+      "to": "factory",
+      "variant": "emphasis",
+      "label": "HTTPS OCI pull"
+    },
+    {
+      "id": "amd64-path",
+      "from": "factory",
+      "to": "gpu",
+      "variant": "default",
+      "label": "amd64 only"
+    },
+    {
+      "id": "arm64-path",
+      "from": "factory",
+      "to": "arm",
+      "variant": "default",
+      "label": "stock arm64"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bootstrap independence",
+      "items": [
+        "Heavy compilation and assembly run on the desktop.",
+        "Factory and registry remain outside the managed Kubernetes cluster."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Current managed-image gap",
+      "items": [
+        "The corrected diagnostic UKI was separately staged.",
+        "Omni desired schematic still names the earlier candidate.",
+        "Keep the machine lock; this map does not imply an automatic rollout."
+      ]
+    }
+  ]
+}

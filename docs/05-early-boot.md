@@ -6,7 +6,9 @@
 
 **Done when:** The exact normal UKI has the loader, early firmware, signature setting, and explicit PCI target.
 
-![Early boot checks every selected GPU before permitting machined and NVIDIA.](../diagrams/boot.svg)
+![Early boot checks every selected GPU before permitting machined and NVIDIA.](../diagrams/archify/boot.png)
+
+[Explore the interactive boot and recovery diagram](../diagrams/archify/README.md).
 
 This is the essential integration. A normal system extension alone is insufficient.
 
@@ -110,22 +112,22 @@ Appending `=0` after an existing `=1` cannot clear this kernel's enable-only enf
 Verify the final UKI command line and the live sysfs value.
 This exception weakens module trust and does not constitute a Secure Boot solution.
 
-## 5. Correct the diagnostic UKI
+## 5. Embed corrected arguments in the installer
 
-The tested diagnostic fixed firmware lookup and added serial diagnostics after base image assembly.
-[assemble-local.py](../scripts/assemble-local.py) preserves that workflow:
+The historical test patched a separate diagnostic UKI after assembly.
+The current [assembler](../scripts/assemble-local.py) puts the correction directly into the imager profile.
+It requires `--targets` with explicit guest PCI addresses and adds the early firmware search path before the UKI is built.
+Talos then packages that UKI inside the installer at `usr/install/amd64/vmlinuz.efi`.
+No post-build UKI patch is required for the new installer.
 
-1. Build a base installer with the custom early imager and all extensions.
-2. Extract its `usr/install/amd64/vmlinuz.efi` into a new file.
-3. Apply [patch-reference-uki.py](../scripts/patch-reference-uki.py) to produce `diagnostic.efi`.
-4. Preserve `.linux` and `.initrd` bytes while correcting the normal command line.
-5. Refuse wipe arguments or contradictory signature settings.
+The assembler automatically runs [verify-installer.py](../scripts/verify-installer.py) against the resulting archive.
+It validates image integrity and extracts the actual packaged UKI before checking its contents.
+The normal profile must contain exactly one target argument, one `module.sig_enforce=0`, and the firmware search path.
+It must not contain a wipe argument.
 
-The OCI installer itself remains unchanged. `diagnostic.efi` is a sidecar.
-The original known-good UKI hash is `9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910`.
-A source rebuild with different extension metadata can produce a different UKI hash.
-[Reference replay](../scripts/replay-reference.py) checks byte-exact reproduction only when the exact preserved base archive is supplied.
-That private base archive is not distributed here.
+[patch-reference-uki.py](../scripts/patch-reference-uki.py) and [reference replay](../scripts/replay-reference.py) remain for historical evidence.
+The original known-good UKI hash remains `9a43833365fb36f7d90126054dc7cc6b34f8fe3170f3ac9a67db898b4a666910`.
+New native imager outputs have distinct hashes and require their own boot validation.
 
 Recovery: select the preserved stock boot entry through the out-of-band console.
 Do not select reset-to-maintenance or an entry that wipes STATE/EPHEMERAL.

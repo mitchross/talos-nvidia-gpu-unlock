@@ -1,0 +1,259 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Build the diagnostic Talos image",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "diagrams/archify/build.html",
+    "repository": {
+      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+      "link_mode": "local-only"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Build steps"
+        },
+        "database": {
+          "label": "Inputs and outputs"
+        },
+        "external": {
+          "label": "Source pins"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "inputs",
+      "label": "Pinned inputs"
+    },
+    {
+      "id": "builder",
+      "label": "amd64 Linux builder"
+    },
+    {
+      "id": "outputs",
+      "label": "Local files; no deployment"
+    }
+  ],
+  "mainPath": [
+    "pins",
+    "module",
+    "extension",
+    "assemble",
+    "installer",
+    "uki"
+  ],
+  "nodes": [
+    {
+      "id": "pins",
+      "lane": "inputs",
+      "col": 0,
+      "type": "external",
+      "label": "Kernel + Unlock pins",
+      "sublabel": "exact source revisions",
+      "sources": [
+        {
+          "path": "scripts/rebuild-module.sh",
+          "line": 9,
+          "end_line": 21
+        }
+      ]
+    },
+    {
+      "id": "module",
+      "lane": "builder",
+      "col": 0,
+      "type": "backend",
+      "label": "Matching module",
+      "sublabel": "headers + symbol CRCs",
+      "sources": [
+        {
+          "path": "scripts/rebuild-module.sh",
+          "line": 22,
+          "end_line": 32
+        }
+      ]
+    },
+    {
+      "id": "firmware",
+      "lane": "inputs",
+      "col": 2,
+      "type": "database",
+      "label": "Local firmware",
+      "sublabel": "NVIDIA extraction inputs",
+      "sources": [
+        {
+          "path": "scripts/package-extension.py",
+          "line": 6,
+          "end_line": 10
+        }
+      ]
+    },
+    {
+      "id": "extension",
+      "lane": "builder",
+      "col": 2,
+      "type": "database",
+      "label": "Extension rootfs",
+      "sublabel": "module + firmware",
+      "sources": [
+        {
+          "path": "scripts/package-extension.py",
+          "line": 5,
+          "end_line": 13
+        }
+      ]
+    },
+    {
+      "id": "early",
+      "lane": "inputs",
+      "col": 3,
+      "type": "backend",
+      "label": "Early imager",
+      "sublabel": "patched init; stock Linux",
+      "sources": [
+        {
+          "path": "scripts/build-early-imager.sh",
+          "line": 8,
+          "end_line": 23
+        }
+      ]
+    },
+    {
+      "id": "official",
+      "lane": "inputs",
+      "col": 4,
+      "type": "database",
+      "label": "Official extensions",
+      "sublabel": "preserve NVIDIA + storage",
+      "sources": [
+        {
+          "path": "scripts/assemble-local.py",
+          "line": 6,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "id": "assemble",
+      "lane": "builder",
+      "col": 4,
+      "type": "backend",
+      "label": "Local assembly",
+      "sublabel": "imager + all extensions",
+      "sources": [
+        {
+          "path": "scripts/assemble-local.py",
+          "line": 14,
+          "end_line": 19
+        }
+      ]
+    },
+    {
+      "id": "installer",
+      "lane": "outputs",
+      "col": 4,
+      "type": "database",
+      "label": "Base installer",
+      "sublabel": "OCI bytes stay unchanged",
+      "sources": [
+        {
+          "path": "scripts/assemble-local.py",
+          "line": 20,
+          "end_line": 34
+        }
+      ]
+    },
+    {
+      "id": "uki",
+      "lane": "outputs",
+      "col": 5,
+      "type": "database",
+      "label": "Diagnostic UKI",
+      "sublabel": "firmware path + serial",
+      "sources": [
+        {
+          "path": "scripts/patch-reference-uki.py",
+          "line": 17,
+          "end_line": 38
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "kernel-build",
+      "from": "pins",
+      "to": "module",
+      "variant": "default"
+    },
+    {
+      "id": "package-module",
+      "from": "module",
+      "to": "extension",
+      "variant": "default"
+    },
+    {
+      "id": "package-fw",
+      "from": "firmware",
+      "to": "extension",
+      "variant": "default"
+    },
+    {
+      "id": "extension-input",
+      "from": "extension",
+      "to": "assemble",
+      "variant": "default",
+      "toSide": "left"
+    },
+    {
+      "id": "init-input",
+      "from": "early",
+      "to": "assemble",
+      "variant": "default",
+      "toSide": "top"
+    },
+    {
+      "id": "official-input",
+      "from": "official",
+      "to": "assemble",
+      "variant": "default",
+      "toSide": "right"
+    },
+    {
+      "id": "installer-output",
+      "from": "assemble",
+      "to": "installer",
+      "variant": "default"
+    },
+    {
+      "id": "correct-sidecar",
+      "from": "installer",
+      "to": "uki",
+      "variant": "emphasis",
+      "label": "copy + fix"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "What stays stock",
+      "items": [
+        "The full local kernel build supplies headers and symbol CRCs.",
+        "The installed Talos Linux kernel stays unchanged."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Deployment boundary",
+      "items": [
+        "The corrected UKI is a separate sidecar.",
+        "These steps do not publish a corrected Omni-managed installer."
+      ]
+    }
+  ]
+}
