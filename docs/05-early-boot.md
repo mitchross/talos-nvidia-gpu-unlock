@@ -6,7 +6,9 @@
 
 **Done when:** The exact normal UKI has the loader, early firmware, signature setting, and explicit PCI target.
 
-![Early boot checks every selected GPU before permitting machined and NVIDIA.](../diagrams/boot.svg)
+![Early boot checks every selected GPU before permitting machined and NVIDIA.](../diagrams/archify/boot.png)
+
+[Explore the interactive boot and recovery diagram](../diagrams/archify/README.md).
 
 This is the essential integration. A normal system extension alone is insufficient.
 

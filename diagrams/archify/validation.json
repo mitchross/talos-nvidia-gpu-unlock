@@ -1,0 +1,66 @@
+{
+  "verified_utc": "2026-10-30T02:45:47.442714+00:00",
+  "scope": "Documentation artifacts only; no live boot or infrastructure checks",
+  "screenshots_and_full_receipts": "Preserved privately; absolute host paths excluded from this bundle",
+  "diagrams": [
+    {
+      "diagram": "build",
+      "type": "workflow",
+      "source_sha256": "cc2c65f2a5b9bf214f1b79f77544fe0fdba6c41d45b54339d2fea53a773f0ecc",
+      "html_sha256": "303fc52dae9bc7ea51a11a6ad9b69b4fd93feaad20c1b9359bd768b44e5afa4d",
+      "preview_sha256": "88beee8a885b1c84a3296a808b487b25f77671ae3369f82737ddeca969ebb709",
+      "gates": {
+        "validate": "pass",
+        "deliver": "pass",
+        "check": "pass",
+        "browser-check": "pass"
+      },
+      "visual_review": "passed",
+      "inspected_viewports": [
+        "1440x900 light",
+        "2048x1320 dark"
+      ],
+      "preview_source": "Archify Viewer canonical PNG export"
+    },
+    {
+      "diagram": "boot",
+      "type": "workflow",
+      "source_sha256": "7496d55a40af03ef9ea36fe11e7069c81c3062f7b2bff7f2f7a8d570a405959f",
+      "html_sha256": "42440aa6c9072a906e90ab187d879c5cff978122acf432c77be3e790d6e51157",
+      "preview_sha256": "5c6fe0262c0f4050a891cb6f2a9a852666683896f848f7bd47a3d0b4d2dd6a29",
+      "gates": {
+        "validate": "pass",
+        "deliver": "pass",
+        "check": "pass",
+        "browser-check": "pass"
+      },
+      "visual_review": "passed",
+      "inspected_viewports": [
+        "1440x900 light",
+        "2048x1320 dark"
+      ],
+      "preview_source": "Archify Viewer canonical PNG export"
+    },
+    {
+      "diagram": "factory",
+      "type": "architecture",
+      "source_sha256": "8b5e0f111669bfc587966ed8f788385c694dae3321e4f896200633f6079fbb48",
+      "html_sha256": "d42d189fb69fb39b4ea649424aa31e3a77ab45780b274d663e5195fd1c0143a2",
+      "preview_sha256": "1bbaf27031066d6b515f02d10a1b42e23a0707283072928df6b5ab1dc15df69d",
+      "gates": {
+        "validate": "pass",
+        "deliver": "pass",
+        "check": "pass",
+        "browser-check": "pass"
+      },
+      "visual_review": "passed",
+      "inspected_viewports": [
+        "1440x900 light",
+        "2048x1320 dark"
+      ],
+      "preview_source": "Archify Viewer canonical PNG export"
+    }
+  ],
+  "rebuild_wrapper_tested": true,
+  "rebuild_wrapper_scope": "All three interactive diagrams regenerated; artifact and browser gates passed."
+}

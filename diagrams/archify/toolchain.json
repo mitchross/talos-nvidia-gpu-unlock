@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/tt-a1i/archify",
+  "tag": "v3.2.0",
+  "commit": "208acba8d412335185b2056fedf54b3405df43fb",
+  "skill_path": "archify/SKILL.md",
+  "source_evidence_revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
+  "source_link_mode": "local-only",
+  "reason": "The pinned Archify source-card verifier does not support Gitea web links."
+}

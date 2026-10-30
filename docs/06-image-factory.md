@@ -12,6 +12,11 @@ Standalone Talos users can build locally without Omni or an Image Factory servic
 Factory integration provides catalog discovery, schematics, signing, and installer serving.
 It does not automatically solve the diagnostic-to-production boot gap.
 
+![Independent Factory and registry services serve separate GPU and stock architecture paths.](../diagrams/archify/factory.png)
+
+[Explore the interactive service map](../diagrams/archify/README.md).
+The corrected diagnostic UKI remains separate from the managed candidate.
+
 ## 1. Build a complete community catalog
 
 A private registry image is not automatically selectable in Omni.

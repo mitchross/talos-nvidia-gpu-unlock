@@ -42,6 +42,10 @@ Run the remaining commands from this repository root. Use a new `work/` director
 
 ## 2. Build the module, firmware, and extension
 
+![Build inputs become a matching module, extension, base installer, and separate diagnostic UKI.](diagrams/archify/build.png)
+
+[Explore the build map](diagrams/archify/README.md).
+
 ### Build a module for this exact kernel
 
 ```bash
@@ -90,6 +94,11 @@ python3 scripts/package-extension.py \
 Preserve your official extensions; [our four-extension recipe](docs/04-talos-extension.md) may need additions for your worker.
 
 ## 3. Make GPU Unlock run before NVIDIA
+
+![Early firmware and fresh unlock success must precede machined and NVIDIA; failures lead to stock recovery.](diagrams/archify/boot.png)
+
+**Scope:** selected-target boot. The current loader initializes one GPU; the other retains its previous verified unlock.
+[Explore the boot map](diagrams/archify/README.md).
 
 A system extension alone does not guarantee ordering.
 Our patched early init runs before `machined` starts normal NVIDIA initialization.

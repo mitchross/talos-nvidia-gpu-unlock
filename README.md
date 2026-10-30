@@ -52,7 +52,9 @@ Time estimates cover reading or preparation, unless a page states otherwise.
 
 ## 3. See the build path
 
-![Source pins become a matching module, extension, early imager, and diagnostic UKI.](diagrams/build.svg)
+![Source pins become a matching module, extension, early imager, and diagnostic UKI.](diagrams/archify/build.png)
+
+[Explore the interactive Archify diagrams](diagrams/archify/README.md).
 
 **Done when:** local checks pass, recovery is preserved, and the remaining boot limitations are understood.
 Local build success does not establish hardware boot success.

@@ -4,9 +4,9 @@ import ast,json,pathlib,re,subprocess,sys
 import yaml
 r=pathlib.Path(__file__).resolve().parents[1];errors=[];counts={'markdown':0,'yaml':0,'json':0,'python':0,'shell':0,'mermaid':0}
 for p in sorted(r.rglob('*')):
- if not p.is_file()or any(v in p.relative_to(r).parts for v in ['.git','work','node_modules','__pycache__','validation-output']):continue
+ if not p.is_file()or any(v in p.relative_to(r).parts for v in ['.git','work','node_modules','__pycache__','validation-output','.archify']):continue
  if p.suffix in ['.ko','.bin','.efi','.key','.pem','.crt','.tar','.xz','.gz']:errors.append('Forbidden executable, firmware, credential, or archive: '+str(p.relative_to(r)))
- if p.suffix not in ['.md','.yaml','.json','.py','.sh','.mmd','.patch','.txt','.svg']and p.name not in ['.gitignore','Dockerfile.toolchain','Dockerfile.extension','Dockerfile.imager']:continue
+ if p.suffix not in ['.md','.yaml','.json','.py','.sh','.mmd','.patch','.txt','.svg','.html']and p.name not in ['.gitignore','Dockerfile.toolchain','Dockerfile.extension','Dockerfile.imager']:continue
  text=p.read_text()
  for pattern in [r'(?<![0-9])192[.]168[.][0-9]+[.][0-9]+',r'(?<![0-9])10[.][0-9]+[.][0-9]+[.][0-9]+',r'(?<![0-9])172[.](?:1[6-9]|2[0-9]|3[01])[.][0-9]+[.][0-9]+',r'/home/[a-z][a-z0-9_-]+',r'GPU-[0-9a-f]{8}-',r'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----']:
   if re.search(pattern,text,re.I):errors.append('Private value matched in '+str(p.relative_to(r)))

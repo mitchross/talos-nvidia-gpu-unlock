@@ -6,6 +6,9 @@
 
 **Done when:** you can locate the early barrier and the remaining managed-image gap.
 
+**Interactive views:** [open the Archify diagram index](../diagrams/archify/README.md).
+The five Mermaid views below remain available as static references.
+
 The diagrams describe the tested ordering and remaining management boundary.
 The currently selected loader initializes one card; the second retains its prior verified unlock.
 
