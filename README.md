@@ -1,6 +1,6 @@
 # GPU Unlock on Talos Linux
 
-**Start with [prerequisites](docs/01-prerequisites.md). Allow 2 minutes to check whether this guide fits your system.**
+**Start with the [simple guide](SIMPLE-GUIDE.md). Allow 5 minutes for the overview, then use the detailed chapters below.**
 
 This guide reconstructs Zagitta GPU Unlock 2.0 on Talos v1.14.5.
 Keep the stock Talos kernel. Build a matching external module.
