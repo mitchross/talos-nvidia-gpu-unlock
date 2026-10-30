@@ -11,7 +11,7 @@ Keep a stock recovery image and independent console access. Review [prerequisite
 These commands compile locally; they do not install GPU Unlock on the builder.
 
 ```bash
-git clone --branch docs/simple-installation-overview \
+git clone \
   https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git
 cd talos-nvidia-gpu-unlock
 export GPU_TARGETS='0000:02:00.0'
