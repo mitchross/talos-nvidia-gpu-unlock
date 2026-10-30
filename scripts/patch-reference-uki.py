@@ -5,6 +5,7 @@ import hashlib
 import json
 import struct
 import sys
+from boot_image import check_normal_arguments
 source, target = map(Path, sys.argv[1:3])
 assert not target.exists(), "Use a new output file."
 original = source.read_bytes()
@@ -23,7 +24,7 @@ args += ["console=ttyS0,115200n8", "earlycon=uart8250,io,0x3f8,115200n8",
 command_line = " ".join(args).encode()+b"\0"
 assert len(command_line) <= capacity
 assert not any(a.startswith("talos.experimental.wipe=") for a in args)
-assert "gpu_unlock.targets=0000:01:00.0" in args
+check_normal_arguments(" ".join(args))
 assert "module.sig_enforce=0" in args and "module.sig_enforce=1" not in args
 # The common command line precedes profile overrides; preserve the reset-maintenance profile.
 data[offset:offset+capacity] = command_line+b"\0"*(capacity-len(command_line))

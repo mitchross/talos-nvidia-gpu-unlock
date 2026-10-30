@@ -12,7 +12,9 @@ Gitea does not run an HTML file inside a Markdown page.
 3. **[Follow early boot](boot.html):** early mounts → checks → fresh unlock success → NVIDIA, or stock recovery.
 4. **[See optional image delivery](factory.html):** desktop builds, private registry, independent Pi services, and separate architecture paths.
 
-The diagrams describe the documented implementation, not a newly observed live state.
+The diagrams freeze the earlier diagnostic implementation, not a newly observed live state.
+The current assembler now embeds the corrected UKI directly in its installer; the sidecar build map is historical.
+See the [current simple guide](../../SIMPLE-GUIDE.md) for the updated build workflow.
 The current loader targets one GPU. The other retains its preceding verified unlock.
 The corrected diagnostic sidecar is not yet the verified Omni-managed installer.
 

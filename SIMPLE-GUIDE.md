@@ -1,236 +1,89 @@
-# GPU Unlock on Talos Linux — A Simple Guide
+# GPU Unlock on Talos — Build, install, check
 
-**Start here:** check the tested setup below. Allow 5 minutes to read this overview; build time depends on your computer.
+**Start here:** choose your guest GPU PCI addresses. Read this page in about 3 minutes.
+The image build is validated offline. Fresh installation and dual-GPU cold/warm boots are **not validated**.
 
-This guide explains how we ran [Zagitta's GPU Unlock](https://github.com/Zagitta/gpu-unlock) on Talos with two RTX 3090 GPUs.
-GPU Unlock can increase FP16/BF16 compute throughput.
+## 1. Prepare a supported test system
 
-Talos is immutable, so the usual Ubuntu module-installation method does not apply.
-Our solution keeps the stock Talos kernel and runs GPU Unlock **before NVIDIA initializes the selected GPU**.
-
-> **Current limit:** this is a tested diagnostic implementation, not an automatic production installation.
-> Fresh-install and repeatable dual-GPU restart procedures remain unvalidated.
-
-## 1. Get your system ready
-
-Our tested setup used:
-
-- Talos v1.14.5 with Linux `6.18.58-talos`.
-- Two GA102 NVIDIA RTX 3090 24 GB GPUs.
-- NVIDIA 595.91.07 with working Kubernetes GPU scheduling and inference.
-- An amd64 Linux builder with the tools in [prerequisites](docs/01-prerequisites.md).
-- An independent console and a preserved stock Talos recovery image.
-
-Provide Docker, Git, Python with PyYAML, Go toolchain support, and the other listed build tools.
-Do not install GPU Unlock on the builder.
-
-> **Trust boundary:** the tested unsigned-module path disables module signature enforcement and does not support Secure Boot.
-> Read [the signature requirements](docs/05-early-boot.md) before planning deployment.
-
-Clone the integration repository:
+Use Talos v1.14.5, kernel `6.18.58-talos`, compatible NVIDIA extensions, and an amd64 Linux builder.
+The example targets `nocloud` VMs with UEFI and Secure Boot disabled.
+Keep a stock recovery image and independent console access. Review [prerequisites](docs/01-prerequisites.md).
+These commands compile locally; they do not install GPU Unlock on the builder.
 
 ```bash
-git clone -b docs/reproducible-talos-gpu-unlock \
+git clone --branch docs/simple-installation-overview \
   https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git
-
 cd talos-nvidia-gpu-unlock
+export GPU_TARGETS='0000:02:00.0'
 ```
 
-Run the remaining commands from this repository root. Use a new `work/` directory.
-
-**Checkpoint:** stock NVIDIA inference works, and you can reach recovery without the Talos API.
+Replace the example with your **guest** PCI address. For two targets, use `0000:01:00.0,0000:02:00.0`.
+No address is assumed by the builder. Duplicate addresses and `all` are rejected.
 
 ## 2. Build the module, firmware, and extension
 
-![Build inputs become a matching module, extension, base installer, and separate diagnostic UKI.](diagrams/archify/build.png)
-
-[Explore the build map](diagrams/archify/README.md).
-
-### Build a module for this exact kernel
+Run from the repository root with a new `work/` directory:
 
 ```bash
 python3 scripts/checkout-sources.py "$PWD/work"
-
-JOBS=8 bash scripts/rebuild-module.sh \
-  "$PWD/work" "$PWD/work/kernel"
-```
-
-This produces `work/kernel/module/gpu_unlock.ko` with matching headers and symbol versions.
-The full local kernel build does not replace Talos's stock kernel.
-
-Check its kernel identity:
-
-```bash
-modinfo -F vermagic work/kernel/module/gpu_unlock.ko
-```
-
-Expected output:
-
-```text
-6.18.58-talos SMP preempt mod_unload modversions
-```
-
-### Extract firmware locally
-
-```bash
+JOBS=8 bash scripts/rebuild-module.sh "$PWD/work" "$PWD/work/kernel"
 bash scripts/extract-firmware.sh "$PWD/work"
-python3 scripts/verify-firmware.py "$PWD/work/assets"
-```
-
-Firmware comes from NVIDIA 610.43.03 inputs. The extraction script does not install or change the NVIDIA driver.
-Review firmware redistribution rights before publishing these assets.
-
-### Package the extension
-
-```bash
 python3 scripts/package-extension.py \
-  "$PWD/work/kernel/module/gpu_unlock.ko" \
-  "$PWD/work/assets" \
-  "$PWD/work/extension" \
-  --source "$PWD/work/sources/gpu-unlock"
+  "$PWD/work/kernel/module/gpu_unlock.ko" "$PWD/work/assets" \
+  "$PWD/work/extension" --source "$PWD/work/sources/gpu-unlock"
+bash scripts/build-early-imager.sh "$PWD/work" "$PWD/work/early"
 ```
 
-**Checkpoint:** packaging verifies vermagic and firmware paths.
-Preserve your official extensions; [our four-extension recipe](docs/04-talos-extension.md) may need additions for your worker.
+**Checkpoint:** the module matches the stock kernel. Firmware extraction does not change the installed NVIDIA driver.
 
-## 3. Make GPU Unlock run before NVIDIA
-
-![Early firmware and fresh unlock success must precede machined and NVIDIA; failures lead to stock recovery.](diagrams/archify/boot.png)
-
-**Scope:** selected-target boot. The current loader initializes one GPU; the other retains its previous verified unlock.
-[Explore the boot map](diagrams/archify/README.md).
-
-A system extension alone does not guarantee ordering.
-Our patched early init runs before `machined` starts normal NVIDIA initialization.
-
-1. Select explicit guest PCI targets.
-2. Check signature settings, device eligibility, and absence of bound drivers.
-3. Insert GPU Unlock synchronously.
-4. Require a fresh success record for every selected GPU.
-5. Permit Talos and NVIDIA to continue.
-
-**Failure closes the barrier.** The Talos API may never start; preserve console access.
-An `EALREADY` error (`-114`) is not accepted as successful initialization.
-
-Build the early imager:
+## 3. Assemble and verify the deployable installer
 
 ```bash
-bash scripts/build-early-imager.sh \
-  "$PWD/work" "$PWD/work/early"
+python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
+  --extension-tar "$PWD/work/extension/extension.rootfs.tar" --targets "$GPU_TARGETS"
+cat work/installer/verification/report.json
 ```
 
-> **Check the target before deployment:** [installer.yaml](examples/installer.yaml) selects `0000:01:00.0` for this diagnostic recipe.
-> Discover your own guest PCI addresses. Do not assume CUDA device 0 has that address.
-> A different target or platform requires adaptation and validation.
+The output is `work/installer/installer-amd64.tar`, containing the corrected UKI at `usr/install/amd64/vmlinuz.efi`.
+The firmware path and target arguments are embedded during assembly. No separate EFI patch or manual copy is required.
+The automatic verifier checks the **archive's own UKI**, early loader, module, 16 firmware files, license, and official extensions.
+It also checks target arguments, signature policy, dependency metadata, and absence of wipe arguments in the normal profile.
+**Checkpoint:** verification passes. This proves image contents, not a successful hardware boot.
 
-Assemble the image locally:
+## 4. Publish and install during an approved test window
+
+Configure an authenticated TLS registry reachable by the test node; see [registry setup](docs/06-image-factory.md).
+Review firmware redistribution rights before publishing. Use a new immutable tag for each target selection.
 
 ```bash
-python3 scripts/assemble-local.py \
-  "$PWD/work" "$PWD/work/installer" \
-  --extension-tar "$PWD/work/extension/extension.rootfs.tar"
+export INSTALLER_REF='registry.example.invalid/talos/gpu-unlock:v1.14.5-test'
+crane push work/installer/installer-amd64.tar "$INSTALLER_REF"
+export INSTALLER_IMAGE="$INSTALLER_REF@$(crane digest "$INSTALLER_REF")"
 ```
 
-This produces an installer archive and a corrected `work/installer/diagnostic.efi` sidecar.
-The sidecar is separate from the OCI installer; the script does not install it on a node.
-
-Verify the corrected sidecar:
+For an **existing standalone UEFI Talos node**, use a v1.14.5 client during approved maintenance:
 
 ```bash
-python3 scripts/verify-uki.py work/installer/diagnostic.efi work/verify \
-  --module work/kernel/module/gpu_unlock.ko
+talosctl -n "${TEST_NODE:?Set an approved test node}" upgrade --image "$INSTALLER_IMAGE"
 ```
 
-**Checkpoint:** verification passes for the image and its normal boot profile.
-Firmware must exist in early initramfs, reachable through `firmware_class.path=/usr/lib/firmware`.
-That setting cannot fix assets that appear only later.
+**This command changes the node and reboots it.** Quiesce affected storage clients and preserve recovery before running it.
+Do not run it on the protected production GPU worker. Omni-managed rollout requires separate review; keep its machine lock.
+Fresh provisioning can reference this image through `machine.install.image`, but that path has not been tested here.
+A retained GPU may fail with `-114`. Do not treat that error as success or retry resets blindly.
 
-## 4. Review the boot procedure before deployment
-
-**This remains the machine-specific part.**
-
-**Using Proxmox?** Follow the [full Proxmox → Talos → vLLM boot order](docs/08-proxmox.md) before planning deployment.
-We booted the corrected UKI through Proxmox with stock recovery preserved.
-The correction fixed early firmware lookup.
-
-The current boot initializes one GPU; the second retains a previous verified unlock.
-Both work, but repeatable dual-target boots remain unvalidated. Retained state can make subsequent initialization fail.
-
-The scripts do not automatically deploy the corrected sidecar through Omni or a normal Talos upgrade.
-Read [installation](docs/09-installation.md) and [rollback](docs/12-rollback.md) before planning a live boot change.
-Quiesce storage clients before any approved shutdown. Preserve data disks.
-
-> **Do not replace your only working boot image.**
-> Keep the Omni machine lock until the corrected managed image and retained-state lifecycle receive review.
-> A Kubernetes uncordon does not require removing that lock.
-
-Factory, Omni, and Proxmox are optional; see the [full guide](README.md).
-The module, firmware, early-loader, and recovery requirements still apply without them. Bare-metal installation was not validated.
-
-**Checkpoint:** review your boot and recovery plan before changing the live machine.
-
-## 5. Check that it worked
-
-Set `TALOS_NODE` to your configured Talos node address. Inspect its kernel log:
+## 5. Verify the boot and workload
 
 ```bash
-talosctl -n "$TALOS_NODE" dmesg
-```
-
-The expected sequence below is illustrative, not a substitute for preserved logs:
-
-```text
-gpu-unlock barrier: inserting module; targets=...
-pci <selected-BDF>: gpu_unlock: unlocked
-gpu-unlock barrier: complete; targets=...; permitting machined
-NVIDIA initialization
-```
-
-**GPU Unlock must complete before NVIDIA initializes the selected GPU.**
-Require fresh success for every selected target. Old logs or `lsmod` alone do not prove success.
-
-Check Kubernetes readiness:
-
-```bash
+talosctl -n "$TEST_NODE" dmesg
 kubectl get nodes
 ```
 
-Run this inside an existing NVIDIA-enabled container **on the Talos worker**, not on the builder or passthrough host:
+Require fresh `gpu_unlock: unlocked` for every selected target, then barrier completion, then NVIDIA initialization.
+Inside an existing NVIDIA container on that worker, verify UUIDs and PCI mapping with `nvidia-smi`.
+Check real inference HTTP 200; see [verification](docs/10-verification.md). NVIDIA visibility alone does not prove an unlock.
+On failure, preserve the first error and select [stock recovery](docs/12-rollback.md). Never choose a wipe profile.
 
-```bash
-nvidia-smi --query-gpu=uuid,pci.bus_id,driver_version,power.limit --format=csv
-```
+Advanced references: [installation details](docs/09-installation.md) · [limitations](docs/13-known-limitations.md) · [optional diagrams](diagrams/archify/README.md).
 
-Map each UUID to its guest PCI address. NVIDIA visibility alone does not prove an unlock.
-Follow [verification](docs/10-verification.md) to check selectors, workload use, and real inference HTTP 200.
-
-If initialization fails, preserve its first error and select stock recovery. Do not treat `-114` as success.
-
-**Checkpoint:** the boot evidence, GPU identities, verified selectors, and serving workload agree.
-
-<details>
-<summary>Supporting evidence: does it help?</summary>
-
-The controlled same-card GPU 2 benchmark measured 8192 × 8192 BF16 GEMM with FP32 accumulation:
-
-| Power limit | Stock BF16 | Unlocked BF16 | Same-card gain |
-|---|---:|---:|---:|
-| 200 W | 45.00 TFLOPS | 57.50 TFLOPS | 27.8% |
-| 250 W | 60.29 TFLOPS | 84.09 TFLOPS | 39.5% |
-
-The separate one-unlocked-card versus both-unlocked Qwen test improved prefill by 14–22% and output throughput by 7–11%.
-Decode showed no demonstrated improvement.
-Read [benchmarks](docs/benchmarks.md) for controls, baselines, and power-efficiency results.
-
-</details>
-
-<details>
-<summary>Remaining work: what prevents automatic production installation?</summary>
-
-The corrected sidecar needs a verified managed installer.
-Dual-card cold/warm startup, retained-state handling, and automatic installation require validation.
-Read [known limitations](docs/13-known-limitations.md) before approving production integration.
-
-</details>
-
-**Next — 2 minutes:** open [prerequisites](docs/01-prerequisites.md) and check your console and stock recovery access.
+**Next — 2 minutes:** check your stock recovery and guest PCI mapping before starting the build.

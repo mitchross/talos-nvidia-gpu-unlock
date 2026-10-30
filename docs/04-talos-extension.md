@@ -59,9 +59,11 @@ Preserve other machine-specific extensions and NVIDIA runtime configuration.
 
 ## 3. Assemble and validate
 
+Set `GPU_TARGETS` to your guest PCI address or comma-separated list. The builder has no default target.
+
 ```bash
 python3 scripts/assemble-local.py "$PWD/work" "$PWD/work/installer" \
-  --extension-tar "$PWD/work/extension/extension.rootfs.tar"
+  --extension-tar "$PWD/work/extension/extension.rootfs.tar" --targets "$GPU_TARGETS"
 ```
 
 The script exports pinned official extension root filesystems and runs Talos's imager locally.
