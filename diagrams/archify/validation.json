@@ -1,13 +1,13 @@
 {
-  "verified_utc": "2026-10-30T03:07:32.341203+00:00",
+  "verified_utc": "2026-10-31T02:15:47.037455+00:00",
   "scope": "Documentation artifacts only; no live boot or infrastructure checks",
   "screenshots_and_full_receipts": "Preserved privately; absolute host paths excluded from this bundle",
   "diagrams": [
     {
       "diagram": "build",
       "type": "workflow",
-      "source_sha256": "cc2c65f2a5b9bf214f1b79f77544fe0fdba6c41d45b54339d2fea53a773f0ecc",
-      "html_sha256": "303fc52dae9bc7ea51a11a6ad9b69b4fd93feaad20c1b9359bd768b44e5afa4d",
+      "source_sha256": "26c60da43cfca81a2cf7d3498963c1e13501ee74b60cd3d31053984ac3d85ca1",
+      "html_sha256": "237d3426a3fb7935b96e3f9309c46e37e627eeca0e866ccc88b95433b1716777",
       "preview_sha256": "88beee8a885b1c84a3296a808b487b25f77671ae3369f82737ddeca969ebb709",
       "gates": {
         "validate": "pass",
@@ -25,8 +25,8 @@
     {
       "diagram": "boot",
       "type": "workflow",
-      "source_sha256": "7496d55a40af03ef9ea36fe11e7069c81c3062f7b2bff7f2f7a8d570a405959f",
-      "html_sha256": "42440aa6c9072a906e90ab187d879c5cff978122acf432c77be3e790d6e51157",
+      "source_sha256": "e7e32f89caccff4c8577769dd6a38eda14ac342be12797d3249c89177e0e8e8f",
+      "html_sha256": "553a448912e19237bb88010ff44ad2c9ad8524aa00547a21246c60ee4ff6457b",
       "preview_sha256": "5c6fe0262c0f4050a891cb6f2a9a852666683896f848f7bd47a3d0b4d2dd6a29",
       "gates": {
         "validate": "pass",
@@ -44,8 +44,8 @@
     {
       "diagram": "factory",
       "type": "architecture",
-      "source_sha256": "8b5e0f111669bfc587966ed8f788385c694dae3321e4f896200633f6079fbb48",
-      "html_sha256": "d42d189fb69fb39b4ea649424aa31e3a77ab45780b274d663e5195fd1c0143a2",
+      "source_sha256": "8d70725aab37c8baac7b82699956b27ee74c3916521d1e62644a0a95fd418452",
+      "html_sha256": "84b0c881bf3495b64dac00a4677fe44901af431e8f6e0986f96a9e3ea6765fe2",
       "preview_sha256": "1bbaf27031066d6b515f02d10a1b42e23a0707283072928df6b5ab1dc15df69d",
       "gates": {
         "validate": "pass",
@@ -63,8 +63,8 @@
     {
       "diagram": "proxmox-boot",
       "type": "workflow",
-      "source_sha256": "e97cd443a4403d73dfb336930ec7d4ac6ffdd3afd3f926fd93085161365d9d1e",
-      "html_sha256": "e4ce10a5ea6b5bd358d07fb98085fb2c9f0f2b160863fc0b9d94ae6eba0f38a0",
+      "source_sha256": "c9a9542f98245fb50552848152ef47f100fe6648263e2e8845e5b136d7b15377",
+      "html_sha256": "8e0449edb50ad32dd2409188555d1a8954535ec86a821e6beab0e0217ac5ce6d",
       "preview_sha256": "ddc1f04862e9d996b4a8baa7b11642f4c3c55b5308e77a797c074a743bd2ff70",
       "gates": {
         "validate": "pass",
@@ -81,5 +81,6 @@
     }
   ],
   "rebuild_wrapper_tested": true,
-  "rebuild_wrapper_scope": "All four diagrams regenerated; HTML bytes match published files and artifact/browser gates passed."
+  "rebuild_wrapper_scope": "All four regenerated through the documented wrapper in a matching GitHub-origin evidence checkout.",
+  "source_url_refresh": "Public GitHub source references; frozen history, topology, and PNG previews unchanged. All four regenerated HTML files passed artifact and real-browser gates."
 }
