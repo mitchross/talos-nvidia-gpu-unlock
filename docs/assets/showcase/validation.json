@@ -1,0 +1,25 @@
+{
+  "renderer": "scripts/render-showcase.py",
+  "source_files": {
+    "evidence/benchmarks.json": "a2c1e5d0d9e1f127f4ae27b22160ad205a2b94eccda558e2ef82664b7b69d766",
+    "evidence/gemm-same-card.json": "66f2db075b3da13e8e2f1228b045bd550c9aa86aa1847c694762f8bd150d8809",
+    "evidence/verified-case.json": "6d5d0ec2a83f6c3fc24ed3bce272f883f54bdbb8088e959caa314dc8f5afb5d0"
+  },
+  "outputs": {
+    "boot-flow.png": "41f65731bf5ae8d83e75e5d7fcd4a41f448ddefec27c42de04aa7395bc52f2b7",
+    "boot-flow.svg": "312ca250710e86685ed4db445b43cd3552968af524b05c20ff3a4bc2ea8402a4",
+    "gemm-4096.png": "5a4fdbaec58c468a05a27ce54d61ece00dde4e14b0508e7ffc08fb3428c47bba",
+    "gemm-4096.svg": "fd0b3ef6645114edb53060572d9312df93118220d00dd752a9982654562ff440",
+    "gemm-8192.png": "72be4c8bee02e855ebc13d9014f7af2e428f6f7dd13de67791c07bcd69792647",
+    "gemm-8192.svg": "1d661ddace2694c83bac0aa4878b22cb3bbf266bd6eec513e7f63f5fa04442b3",
+    "hero.png": "33d94e72cab63be25fea684582bd1e2d3bf0f56a7a72131a4e269f172abcdfc0",
+    "hero.svg": "d22b6df72bab00012f7c9e2ca4d58b5ac2a8795a85d036653662d793a30092c3",
+    "power.png": "97682cc315639f4aae0d0972e59d434515ac666a3067e1ff689a4f9bdc4eaaf7",
+    "power.svg": "4c2e3da6ec17ac49889771e6cdb11c07c355307c8854256c6dc2ebe4d72f1990",
+    "qwen.png": "6567f175b9b4e8c2d583d81bb9c0093ace55c183caf9beb669232cd1a1823eea",
+    "qwen.svg": "45f5c37b0e091d5bcbdc344a7f73e1cd7effde25b4f1d623ab48e186779ddedc"
+  },
+  "new_gpu_measurements": false,
+  "fresh_install_claimed": false,
+  "note": "Hero metrics, charts, and boot flow use preserved evidence; GPU identities are sanitized."
+}

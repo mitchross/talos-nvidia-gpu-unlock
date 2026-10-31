@@ -2,6 +2,10 @@
 
 **Start with the [simple guide](SIMPLE-GUIDE.md). Allow 5 minutes for the overview, then use the detailed chapters below.**
 
+![Proxmox plus Talos: two verified RTX 3090s; same-card BF16 gain of 39.5 percent at 250 W; Qwen prefill gain of 21.8 percent at concurrency four.](docs/assets/showcase/hero.png)
+
+[Open the visual showcase](docs/showcase.md) for the boot flow, both GPUs' FP16/BF16/TF32 results, Qwen, and measured GPU energy.
+
 This guide reconstructs Zagitta GPU Unlock 2.0 on Talos v1.14.5.
 Keep the stock Talos kernel. Build a matching external module.
 Run GPU Unlock in early initramfs, before NVIDIA binds the selected GPU.

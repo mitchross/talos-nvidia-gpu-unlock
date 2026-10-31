@@ -1,0 +1,917 @@
+{
+  "source_sha256": "81c0ed92aba6dd01ac73a556124277bc17f9b3181f81a9ee6145396914815a45",
+  "scope": "Each GPU compared against itself across stock and unlocked boots; GPU labels replace private UUIDs.",
+  "methodology": {
+    "matrix_sizes": [
+      4096,
+      8192
+    ],
+    "power_limits_watts": [
+      200,
+      250
+    ],
+    "precision": [
+      "FP16",
+      "BF16",
+      "TF32"
+    ],
+    "accumulation": "FP32; reduced FP16/BF16 reduction and FP16 accumulation disabled",
+    "timing": "CUDA events; median of five calibrated windows >=500 ms",
+    "warmups": 5,
+    "pytorch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "driver": "595.91.07",
+    "measurement_date": "2026-10-29",
+    "limitations": "Boot/reset between states; initial temperatures differed; not a randomized crossover study. No new measurements for visualization."
+  },
+  "comparisons": [
+    {
+      "watts_limit": 200,
+      "dtype": "FP16",
+      "size": 4096,
+      "before_tflops": 52.605630930871826,
+      "after_tflops": 65.06745106351536,
+      "gain_percent": 23.689137288400563,
+      "before_actual_watts": 198.92229166666667,
+      "after_actual_watts": 199.13814285714284,
+      "before_tflops_per_watt": 0.2644531715883451,
+      "after_tflops_per_watt": 0.32674529414584963,
+      "before_telemetry": {
+        "watts": 198.92229166666667,
+        "sm_mhz": 1440,
+        "memory_mhz": 9501,
+        "temperature_c": 53.333333333333336,
+        "utilization": 99.95833333333333,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 54
+      },
+      "after_telemetry": {
+        "watts": 199.13814285714284,
+        "sm_mhz": 887.8571428571429,
+        "memory_mhz": 9501,
+        "temperature_c": 40.523809523809526,
+        "utilization": 99.76190476190476,
+        "samples": 21,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 41
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "BF16",
+      "size": 4096,
+      "before_tflops": 54.46448346786304,
+      "after_tflops": 71.56928160085077,
+      "gain_percent": 31.405416968804033,
+      "before_actual_watts": 199.0578260869565,
+      "after_actual_watts": 199.05595652173912,
+      "before_tflops_per_watt": 0.27361136479040393,
+      "after_tflops_per_watt": 0.35954353163520936,
+      "before_telemetry": {
+        "watts": 199.0578260869565,
+        "sm_mhz": 1477.1739130434783,
+        "memory_mhz": 9501,
+        "temperature_c": 55,
+        "utilization": 99.78260869565217,
+        "samples": 23,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 55
+      },
+      "after_telemetry": {
+        "watts": 199.05595652173912,
+        "sm_mhz": 950.8695652173913,
+        "memory_mhz": 9501,
+        "temperature_c": 42.608695652173914,
+        "utilization": 100,
+        "samples": 23,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 43
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "TF32",
+      "size": 4096,
+      "before_tflops": 26.70649530395035,
+      "after_tflops": 33.672247053725464,
+      "gain_percent": 26.082612752054946,
+      "before_actual_watts": 198.84973076923077,
+      "after_actual_watts": 198.97464,
+      "before_tflops_per_watt": 0.13430491055048896,
+      "after_tflops_per_watt": 0.1692288376736124,
+      "before_telemetry": {
+        "watts": 198.84973076923077,
+        "sm_mhz": 1434.2307692307693,
+        "memory_mhz": 9501,
+        "temperature_c": 55.65384615384615,
+        "utilization": 100,
+        "samples": 26,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 56
+      },
+      "after_telemetry": {
+        "watts": 198.97464,
+        "sm_mhz": 889.2,
+        "memory_mhz": 9501,
+        "temperature_c": 44,
+        "utilization": 99.84,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 44
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "FP16",
+      "size": 8192,
+      "before_tflops": 42.83712047294802,
+      "after_tflops": 54.50308712731754,
+      "gain_percent": 27.233311963012707,
+      "before_actual_watts": 199.96497297297296,
+      "after_actual_watts": 199.55966666666666,
+      "before_tflops_per_watt": 0.21422312035987343,
+      "after_tflops_per_watt": 0.2731167476760545,
+      "before_telemetry": {
+        "watts": 199.96497297297296,
+        "sm_mhz": 1024.054054054054,
+        "memory_mhz": 9501,
+        "temperature_c": 56,
+        "utilization": 100,
+        "samples": 37,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 56
+      },
+      "after_telemetry": {
+        "watts": 199.55966666666666,
+        "sm_mhz": 670,
+        "memory_mhz": 9501,
+        "temperature_c": 45.666666666666664,
+        "utilization": 100,
+        "samples": 30,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 46
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "BF16",
+      "size": 8192,
+      "before_tflops": 45.000899322308506,
+      "after_tflops": 57.49648623878499,
+      "gain_percent": 27.767415995355414,
+      "before_actual_watts": 199.93369444444446,
+      "after_actual_watts": 199.5322857142857,
+      "before_tflops_per_watt": 0.22507911659089008,
+      "after_tflops_per_watt": 0.288156305296454,
+      "before_telemetry": {
+        "watts": 199.93369444444446,
+        "sm_mhz": 1073.75,
+        "memory_mhz": 9501,
+        "temperature_c": 56.97222222222222,
+        "utilization": 99.86111111111111,
+        "samples": 36,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 57
+      },
+      "after_telemetry": {
+        "watts": 199.5322857142857,
+        "sm_mhz": 707.1428571428571,
+        "memory_mhz": 9501,
+        "temperature_c": 47,
+        "utilization": 100,
+        "samples": 28,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 47
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "TF32",
+      "size": 8192,
+      "before_tflops": 28.88814687612647,
+      "after_tflops": 34.658243703363205,
+      "gain_percent": 19.973925125689583,
+      "before_actual_watts": 199.5887027027027,
+      "after_actual_watts": 199.5689677419355,
+      "before_tflops_per_watt": 0.14473838691740384,
+      "after_tflops_per_watt": 0.17366549567054987,
+      "before_telemetry": {
+        "watts": 199.5887027027027,
+        "sm_mhz": 1399.054054054054,
+        "memory_mhz": 9501,
+        "temperature_c": 58,
+        "utilization": 100,
+        "samples": 37,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 58
+      },
+      "after_telemetry": {
+        "watts": 199.5689677419355,
+        "sm_mhz": 839.516129032258,
+        "memory_mhz": 9501,
+        "temperature_c": 48.12903225806452,
+        "utilization": 100,
+        "samples": 31,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 49
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "FP16",
+      "size": 4096,
+      "before_tflops": 60.78651434053235,
+      "after_tflops": 95.43353531941399,
+      "gain_percent": 56.99787420740306,
+      "before_actual_watts": 249.155375,
+      "after_actual_watts": 249.51821739130435,
+      "before_tflops_per_watt": 0.24397031105803899,
+      "after_tflops_per_watt": 0.38247121319302846,
+      "before_telemetry": {
+        "watts": 249.155375,
+        "sm_mhz": 1669.375,
+        "memory_mhz": 9501,
+        "temperature_c": 59,
+        "utilization": 99.91666666666667,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 59
+      },
+      "after_telemetry": {
+        "watts": 249.51821739130435,
+        "sm_mhz": 1352.608695652174,
+        "memory_mhz": 9501,
+        "temperature_c": 50.26086956521739,
+        "utilization": 100,
+        "samples": 23,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 51
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "BF16",
+      "size": 4096,
+      "before_tflops": 61.74970595730383,
+      "after_tflops": 99.4566807389699,
+      "gain_percent": 61.06421754904896,
+      "before_actual_watts": 249.09716,
+      "after_actual_watts": 249.11025,
+      "before_tflops_per_watt": 0.24789405851637902,
+      "after_tflops_per_watt": 0.39924764532559337,
+      "before_telemetry": {
+        "watts": 249.09716,
+        "sm_mhz": 1690.8,
+        "memory_mhz": 9501,
+        "temperature_c": 60.32,
+        "utilization": 99.92,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 61
+      },
+      "after_telemetry": {
+        "watts": 249.11025,
+        "sm_mhz": 1378.125,
+        "memory_mhz": 9501,
+        "temperature_c": 51.833333333333336,
+        "utilization": 99.83333333333333,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 52
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "TF32",
+      "size": 4096,
+      "before_tflops": 30.369446596455028,
+      "after_tflops": 47.077622610544104,
+      "gain_percent": 55.01639933089657,
+      "before_actual_watts": 248.93207407407408,
+      "after_actual_watts": 249.34629166666667,
+      "before_tflops_per_watt": 0.1219989296655202,
+      "after_tflops_per_watt": 0.18880418191050874,
+      "before_telemetry": {
+        "watts": 248.93207407407408,
+        "sm_mhz": 1652.7777777777778,
+        "memory_mhz": 9501,
+        "temperature_c": 61.2962962962963,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 62
+      },
+      "after_telemetry": {
+        "watts": 249.34629166666667,
+        "sm_mhz": 1316.25,
+        "memory_mhz": 9501,
+        "temperature_c": 53,
+        "utilization": 100,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 53
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "FP16",
+      "size": 8192,
+      "before_tflops": 57.721097264493594,
+      "after_tflops": 79.55405190277867,
+      "gain_percent": 37.82491268009096,
+      "before_actual_watts": 249.802,
+      "after_actual_watts": 249.8302962962963,
+      "before_tflops_per_watt": 0.2310673944343664,
+      "after_tflops_per_watt": 0.318432364217462,
+      "before_telemetry": {
+        "watts": 249.802,
+        "sm_mhz": 1404.642857142857,
+        "memory_mhz": 9501,
+        "temperature_c": 61.17857142857143,
+        "utilization": 100,
+        "samples": 28,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 62
+      },
+      "after_telemetry": {
+        "watts": 249.8302962962963,
+        "sm_mhz": 1005.5555555555555,
+        "memory_mhz": 9501,
+        "temperature_c": 54.333333333333336,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 55
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "BF16",
+      "size": 8192,
+      "before_tflops": 60.28874137340872,
+      "after_tflops": 84.094630318968,
+      "gain_percent": 39.48645867080456,
+      "before_actual_watts": 249.6507037037037,
+      "after_actual_watts": 249.12865625,
+      "before_tflops_per_watt": 0.24149237506240726,
+      "after_tflops_per_watt": 0.3375550271285502,
+      "before_telemetry": {
+        "watts": 249.6507037037037,
+        "sm_mhz": 1457.2222222222222,
+        "memory_mhz": 9501,
+        "temperature_c": 62,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 62
+      },
+      "after_telemetry": {
+        "watts": 249.12865625,
+        "sm_mhz": 1040.15625,
+        "memory_mhz": 9501,
+        "temperature_c": 55.15625,
+        "utilization": 100,
+        "samples": 32,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 56
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "TF32",
+      "size": 8192,
+      "before_tflops": 33.42630822623952,
+      "after_tflops": 50.740267935254174,
+      "gain_percent": 51.79740338606482,
+      "before_actual_watts": 249.08866666666668,
+      "after_actual_watts": 249.51806249999998,
+      "before_tflops_per_watt": 0.13419441628378456,
+      "after_tflops_per_watt": 0.20335308565188212,
+      "before_telemetry": {
+        "watts": 249.08866666666668,
+        "sm_mhz": 1613.1818181818182,
+        "memory_mhz": 9501,
+        "temperature_c": 63.78787878787879,
+        "utilization": 100,
+        "samples": 33,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 64
+      },
+      "after_telemetry": {
+        "watts": 249.51806249999998,
+        "sm_mhz": 1230.9375,
+        "memory_mhz": 9501,
+        "temperature_c": 56.4375,
+        "utilization": 100,
+        "samples": 32,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 57
+      },
+      "gpu": "GPU B"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "FP16",
+      "size": 4096,
+      "before_tflops": 54.11522688286482,
+      "after_tflops": 64.39109902698759,
+      "gain_percent": 18.988873808781072,
+      "before_actual_watts": 199.18070833333334,
+      "after_actual_watts": 200.09586363636365,
+      "before_tflops_per_watt": 0.2716890974817791,
+      "after_tflops_per_watt": 0.3218012499449075,
+      "before_telemetry": {
+        "watts": 199.18070833333334,
+        "sm_mhz": 1483.125,
+        "memory_mhz": 9501,
+        "temperature_c": 38.208333333333336,
+        "utilization": 99.91666666666667,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 39
+      },
+      "after_telemetry": {
+        "watts": 200.09586363636365,
+        "sm_mhz": 912.9545454545455,
+        "memory_mhz": 9501,
+        "temperature_c": 39.22727272727273,
+        "utilization": 100,
+        "samples": 22,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 40
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "BF16",
+      "size": 4096,
+      "before_tflops": 55.42405822714619,
+      "after_tflops": 69.82807214328426,
+      "gain_percent": 25.988739144841478,
+      "before_actual_watts": 199.4315,
+      "after_actual_watts": 198.8735652173913,
+      "before_tflops_per_watt": 0.2779102510242674,
+      "after_tflops_per_watt": 0.35111791789398594,
+      "before_telemetry": {
+        "watts": 199.4315,
+        "sm_mhz": 1528.75,
+        "memory_mhz": 9501,
+        "temperature_c": 40.083333333333336,
+        "utilization": 99.91666666666667,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 41
+      },
+      "after_telemetry": {
+        "watts": 198.8735652173913,
+        "sm_mhz": 942.3913043478261,
+        "memory_mhz": 9501,
+        "temperature_c": 40.78260869565217,
+        "utilization": 99.78260869565217,
+        "samples": 23,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 41
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "TF32",
+      "size": 4096,
+      "before_tflops": 26.90990604638497,
+      "after_tflops": 33.12397866831947,
+      "gain_percent": 23.092137933232525,
+      "before_actual_watts": 199.20692,
+      "after_actual_watts": 199.39388,
+      "before_tflops_per_watt": 0.13508519707239575,
+      "after_tflops_per_watt": 0.1661233467562769,
+      "before_telemetry": {
+        "watts": 199.20692,
+        "sm_mhz": 1474.8,
+        "memory_mhz": 9501,
+        "temperature_c": 41.56,
+        "utilization": 100,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 42
+      },
+      "after_telemetry": {
+        "watts": 199.39388,
+        "sm_mhz": 889.8,
+        "memory_mhz": 9501,
+        "temperature_c": 42.04,
+        "utilization": 100,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 43
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "FP16",
+      "size": 8192,
+      "before_tflops": 43.84650276944873,
+      "after_tflops": 52.328115382719616,
+      "gain_percent": 19.343874830493156,
+      "before_actual_watts": 199.7282972972973,
+      "after_actual_watts": 199.55129032258066,
+      "before_tflops_per_watt": 0.21953074933684952,
+      "after_tflops_per_watt": 0.26222890013955635,
+      "before_telemetry": {
+        "watts": 199.7282972972973,
+        "sm_mhz": 1063.3783783783783,
+        "memory_mhz": 9501,
+        "temperature_c": 42.5945945945946,
+        "utilization": 100,
+        "samples": 37,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 43
+      },
+      "after_telemetry": {
+        "watts": 199.55129032258066,
+        "sm_mhz": 645.483870967742,
+        "memory_mhz": 9501,
+        "temperature_c": 43.87096774193548,
+        "utilization": 100,
+        "samples": 31,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 44
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "BF16",
+      "size": 8192,
+      "before_tflops": 46.18746912373856,
+      "after_tflops": 55.70750745027976,
+      "gain_percent": 20.611734107007564,
+      "before_actual_watts": 200.02002857142858,
+      "after_actual_watts": 199.9286896551724,
+      "before_tflops_per_watt": 0.23091422120882601,
+      "after_tflops_per_watt": 0.2786368857134084,
+      "before_telemetry": {
+        "watts": 200.02002857142858,
+        "sm_mhz": 1118.142857142857,
+        "memory_mhz": 9501,
+        "temperature_c": 43.97142857142857,
+        "utilization": 100,
+        "samples": 35,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 44
+      },
+      "after_telemetry": {
+        "watts": 199.9286896551724,
+        "sm_mhz": 706.0344827586207,
+        "memory_mhz": 9501,
+        "temperature_c": 45,
+        "utilization": 100,
+        "samples": 29,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 45
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 200,
+      "dtype": "TF32",
+      "size": 8192,
+      "before_tflops": 29.249283919820652,
+      "after_tflops": 33.355071189915904,
+      "gain_percent": 14.037223206387562,
+      "before_actual_watts": 199.51048648648649,
+      "after_actual_watts": 199.90253124999998,
+      "before_tflops_per_watt": 0.14660524584406648,
+      "after_tflops_per_watt": 0.16685667250607117,
+      "before_telemetry": {
+        "watts": 199.51048648648649,
+        "sm_mhz": 1406.7567567567567,
+        "memory_mhz": 9501,
+        "temperature_c": 45.86486486486486,
+        "utilization": 100,
+        "samples": 37,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 46
+      },
+      "after_telemetry": {
+        "watts": 199.90253124999998,
+        "sm_mhz": 826.875,
+        "memory_mhz": 9501,
+        "temperature_c": 46.15625,
+        "utilization": 100,
+        "samples": 32,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 47
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "FP16",
+      "size": 4096,
+      "before_tflops": 61.38597440557209,
+      "after_tflops": 94.7897774324162,
+      "gain_percent": 54.41601823593763,
+      "before_actual_watts": 248.99944,
+      "after_actual_watts": 249.20617391304347,
+      "before_tflops_per_watt": 0.24653057213932728,
+      "after_tflops_per_watt": 0.38036689037042715,
+      "before_telemetry": {
+        "watts": 248.99944,
+        "sm_mhz": 1673.4,
+        "memory_mhz": 9501,
+        "temperature_c": 48.24,
+        "utilization": 100,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 49
+      },
+      "after_telemetry": {
+        "watts": 249.20617391304347,
+        "sm_mhz": 1316.0869565217392,
+        "memory_mhz": 9501,
+        "temperature_c": 48.17391304347826,
+        "utilization": 99.82608695652173,
+        "samples": 23,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 49
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "BF16",
+      "size": 4096,
+      "before_tflops": 62.10001719995907,
+      "after_tflops": 98.33064276051911,
+      "gain_percent": 58.34237604781842,
+      "before_actual_watts": 249.22539999999998,
+      "after_actual_watts": 249.48133333333334,
+      "before_tflops_per_watt": 0.24917210364577236,
+      "after_tflops_per_watt": 0.3941402807445277,
+      "before_telemetry": {
+        "watts": 249.22539999999998,
+        "sm_mhz": 1712.4,
+        "memory_mhz": 9501,
+        "temperature_c": 50,
+        "utilization": 99.88,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 50
+      },
+      "after_telemetry": {
+        "watts": 249.48133333333334,
+        "sm_mhz": 1381.25,
+        "memory_mhz": 9501,
+        "temperature_c": 49.708333333333336,
+        "utilization": 100,
+        "samples": 24,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 50
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "TF32",
+      "size": 4096,
+      "before_tflops": 30.73346242166157,
+      "after_tflops": 46.81020492125475,
+      "gain_percent": 52.310222255537234,
+      "before_actual_watts": 249.29233333333332,
+      "after_actual_watts": 249.61932,
+      "before_tflops_per_watt": 0.12328282226219649,
+      "after_tflops_per_watt": 0.18752636983890011,
+      "before_telemetry": {
+        "watts": 249.29233333333332,
+        "sm_mhz": 1671.111111111111,
+        "memory_mhz": 9501,
+        "temperature_c": 51.407407407407405,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 52
+      },
+      "after_telemetry": {
+        "watts": 249.61932,
+        "sm_mhz": 1320,
+        "memory_mhz": 9501,
+        "temperature_c": 50.8,
+        "utilization": 100,
+        "samples": 25,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 51
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "FP16",
+      "size": 8192,
+      "before_tflops": 58.63018682487702,
+      "after_tflops": 77.95199662426936,
+      "gain_percent": 32.955395242223595,
+      "before_actual_watts": 249.50088888888888,
+      "after_actual_watts": 249.62328571428571,
+      "before_tflops_per_watt": 0.2349898915630197,
+      "after_tflops_per_watt": 0.3122785456541574,
+      "before_telemetry": {
+        "watts": 249.50088888888888,
+        "sm_mhz": 1406.111111111111,
+        "memory_mhz": 9501,
+        "temperature_c": 52,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 52
+      },
+      "after_telemetry": {
+        "watts": 249.62328571428571,
+        "sm_mhz": 983.5714285714286,
+        "memory_mhz": 9501,
+        "temperature_c": 51.92857142857143,
+        "utilization": 100,
+        "samples": 28,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 52
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "BF16",
+      "size": 8192,
+      "before_tflops": 60.37945813025568,
+      "after_tflops": 82.81911858933844,
+      "gain_percent": 37.164395233017885,
+      "before_actual_watts": 249.0992962962963,
+      "after_actual_watts": 249.7135925925926,
+      "before_tflops_per_watt": 0.24239112284940414,
+      "after_tflops_per_watt": 0.33165642979017856,
+      "before_telemetry": {
+        "watts": 249.0992962962963,
+        "sm_mhz": 1443.888888888889,
+        "memory_mhz": 9501,
+        "temperature_c": 52.77777777777778,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 53
+      },
+      "after_telemetry": {
+        "watts": 249.7135925925926,
+        "sm_mhz": 1007.7777777777778,
+        "memory_mhz": 9501,
+        "temperature_c": 53,
+        "utilization": 100,
+        "samples": 27,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 53
+      },
+      "gpu": "GPU A"
+    },
+    {
+      "watts_limit": 250,
+      "dtype": "TF32",
+      "size": 8192,
+      "before_tflops": 33.95809679668597,
+      "after_tflops": 48.760647403180734,
+      "gain_percent": 43.590636704761884,
+      "before_actual_watts": 249.3141875,
+      "after_actual_watts": 249.96378787878788,
+      "before_tflops_per_watt": 0.13620603439058587,
+      "after_tflops_per_watt": 0.19507084532910696,
+      "before_telemetry": {
+        "watts": 249.3141875,
+        "sm_mhz": 1647.1875,
+        "memory_mhz": 9501,
+        "temperature_c": 54.25,
+        "utilization": 100,
+        "samples": 32,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 55
+      },
+      "after_telemetry": {
+        "watts": 249.96378787878788,
+        "sm_mhz": 1208.6363636363637,
+        "memory_mhz": 9501,
+        "temperature_c": 54,
+        "utilization": 100,
+        "samples": 33,
+        "throttle_masks": [
+          4
+        ],
+        "peak_temperature_c": 54
+      },
+      "gpu": "GPU A"
+    }
+  ]
+}
