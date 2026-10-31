@@ -31,6 +31,11 @@ It is not a causal same-card before/after result.
 The [upstream #17 report](https://github.com/Zagitta/gpu-unlock/issues/17) used 420 W and another system.
 Its roughly 67% BF16 gain is not directly comparable to a 200 W production cap.
 
+![Same-card FP16, BF16, and TF32 throughput for both GPUs at 8192 square, 200 W and 250 W.](assets/showcase/gemm-8192.png)
+
+The [full sanitized GEMM data](../evidence/gemm-same-card.json) includes all 24 matched comparisons and power/clock telemetry.
+The [visual showcase](showcase.md) also includes 4096-square results and real Qwen charts.
+
 ## 2. Production Qwen inference
 
 The verified primary baseline was GPU A stock / GPU B unlocked, compared with both unlocked.
