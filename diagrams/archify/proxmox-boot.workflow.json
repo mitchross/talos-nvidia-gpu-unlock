@@ -7,7 +7,7 @@
     "output": "diagrams/archify/proxmox-boot.html",
     "quality_profile": "showcase",
     "repository": {
-      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "url": "https://github.com/mitchross/talos-nvidia-gpu-unlock.git",
       "revision": "fe6feb6cfa704cd2a2661fef61c93d1bae879216",
       "link_mode": "local-only"
     },

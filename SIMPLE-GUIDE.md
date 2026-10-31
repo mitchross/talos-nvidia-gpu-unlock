@@ -12,7 +12,7 @@ These commands compile locally; they do not install GPU Unlock on the builder.
 
 ```bash
 git clone \
-  https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git
+  https://github.com/mitchross/talos-nvidia-gpu-unlock.git
 cd talos-nvidia-gpu-unlock
 export GPU_TARGETS='0000:02:00.0'
 ```

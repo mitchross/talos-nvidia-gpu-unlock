@@ -7,7 +7,7 @@
     "quality_profile": "showcase",
     "output": "diagrams/archify/factory.html",
     "repository": {
-      "url": "https://gitea.vanillax.me/vanillax/talos-nvidia-gpu-unlock.git",
+      "url": "https://github.com/mitchross/talos-nvidia-gpu-unlock.git",
       "revision": "09a9d83a17c1331d2bf6a9d4fd6bde5f4d9f965c",
       "link_mode": "local-only"
     }

@@ -4,8 +4,8 @@
 
 On bare metal, skip the Proxmox-specific stages and use [early boot and recovery](boot.html).
 
-The previews work inside Gitea Markdown. The interactive HTML works offline after download, without an Archify installation.
-Gitea does not run an HTML file inside a Markdown page.
+The previews work inside GitHub Markdown. The interactive HTML works offline after download, without an Archify installation.
+GitHub does not run an HTML file inside a Markdown page.
 
 1. **[Follow the full Proxmox boot](proxmox-boot.html):** host VFIO → guest firmware → Talos barrier → NVIDIA → Kubernetes → vLLM.
 2. **[Build the image](build.html):** source pins → matching module → extension → installer and diagnostic sidecar.
@@ -84,7 +84,7 @@ bash scripts/render-diagrams.sh "$PWD/work/archify" "$PWD/work/diagram-review"
 The wrapper verifies the Archify commit, then runs artifact and real-browser checks for each diagram.
 It writes into a new directory and does not overwrite the published files.
 The JSON sources preserve the exact source revision and inspected line ranges.
-Their source cards use `local-only` evidence because this Archify version does not support Gitea web links.
+Their source cards use `local-only` evidence bound to the frozen commits listed above.
 This limitation does not mean the diagrams lack verified source evidence.
 
 To refresh a preview, open its checked HTML and choose **Export → PNG**.
